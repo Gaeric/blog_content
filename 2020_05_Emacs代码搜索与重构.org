@@ -26,3 +26,4 @@
 
   还有其它的具体设置，可见于其Readme
 * 使用color-rg
+  ~color-rg~的安装方式与wgrep相同，经过作者对其替换用法的解释，目前已可以正常使用，具体见链接：https://github.com/manateelazycat/color-rg/issues/44
