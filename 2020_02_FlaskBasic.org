@@ -1,0 +1,244 @@
+#+title: 通用Web概念及Flask基础知识
+#+startup: content
+#+author: Eric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* url概念
+  ~URL~是~Uniform Resource Locator~的简称，即统一资源定位符；
+  
+  它的~wiki~介绍：colloquially termed a web address is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it.
+  
+  通俗的理解，URL用于标识某一个存在于网络上的资源在网络中的具体位置；一个URL的形式通常如下，让我们看看它是如何标识出资源位置的：
+
+  ~scheme://host:port/path/?query-string=xxx#anchor~
+
+  - scheme: 代表的是访问地址所用的协议；常见诸如：~http~ ~https~ ~ftp~等；
+  - host: 主机名、域名或IP；如本地回环地址~127.0.0.1~或域名~www.baidu.com~等；
+  - port: 端口号；如常用的~http~端口号~80~， 常用的~https~端口号~443~等；
+  - path: 查找路径；如：~lantianzero.club/blogs/org_blog/~中，~/blogs/org_blog/~即为路径
+  - query-string: 查询字符 如：~www.baidu.com/s?wd=python~ ~Wd=python~即为查询字符串
+  - anchor: 锚点，主要用于前端定位
+    
+  URL中还可以附代参数~params~，但是较为少见，其形式为：
+  ~scheme://host:port/path/params;?query-string=xxx#anchor~
+
+  如果要解析~url~，可以使用~urllib.urlparse~或~urllib.urlsplit~函数，获取每一部分参数，后者不带~params~属性
+
+* web应用框架
+  - web服务器 :: 主要负责处理http请求，响应静态文件；常见的有nginx、apache以及IIs
+
+  - 应用服务器 :: 主要负责处理具体逻辑的服务器；比如:php、python的代码，无法直接通过nginx此类web服务器进行处理，只能通过应用服务器处理；常见的应用服务器有~uwsgi~，~tomcat~等
+
+  - web应用框架 :: 一般使用某种语言，封装了常用的web功能的框架就是web应用框架，~flask~ ~Django~以及Java中的~SSH(Structs2+Sprint3+Hibernate3)~框架都是~web应用框架~
+
+  一般而言，向服务器的~http~请求都将首先通过web服务器接收，web服务器判断请求的类型，将指定的请求交由~应用服务器~处理，应用服务器在处理完成后，将处理的结果返回；
+  
+  WSGI协议主要包括server和application两部分：
+  WSGI server负责从其客户端接收请求，将request转发给application，将application返回的response返回给客户端；
+* Flask应用框架
+  flask是pythonweb开发框架中的一种，其具有如下优点：
+  
+  - 微框架、简洁、只做他需要做的，为开发者扩展性提供了较大的便利
+  - Flask和相关的依赖(Jinja2、 Werkzeug、sqlalchemy）设计的非常优秀，用起来舒服
+  - 开发效率非常高，比如ORM可以极大的减少编写Sql的时间
+* Flask的Debug模式
+  - 为什么要开启DBUG模式
+    1. 如果开启了DEBUG模式，响应中出现异常时，滤览器页面可以看到具体的错误信息，以及具体的错误；代码位置，方便开发者调试
+    2. 如果开启了DEBUG模式，当项目中的代码改变时，flask会自动重载整个项目
+       
+  - 开启DEBUG模式的几种方法
+    1. 在 app.run 的中带入debug=True参数
+       #+begin_src python
+         app.run(debug=True)
+       #+end_src
+    2. 使用 app.debug=True
+    3. 使用 app.config.update(DEBUG=True) #字典的update方法，注意DEBUG全大写
+       
+  - PIN码（基本不用）
+    1. 当响应出现异常时，开发人员可以直接在前端调试代码，但在调试之前需要输入PIN码进行鉴权
+    2. PIN码可以在启动时获得，但是不常用（DEBUG模式直接在后端修改即可）
+* Flask加载配置文件的方法
+  Flask加载配置文件的方法有几种，如下列举
+  
+  1. 使用 ~app.config.from_object(config)~ 的方式加载配置文件：
+     - 导入配置文件 ~import config~
+     - 使用配置文件 ~app.config.from_object(config)~
+
+  2. 使用 ~app.config.from_pyfile~ 的方式加载配置文体；
+     - 这种方式不需要 ~import~ ，而是直接使用文件名，如： ~app.config.from_pyfile(config.py)~
+     - 必需写完文件的全名，且文件不局限于*.py文件，也可以加载纯文本文件
+     - 设置 ~silent~ 参数为 ~True~ 时使用静默模式，未找到配置文件出错时不报错
+* URL与视图函数映射
+  在Flask中，一个URL要与执行函数进行映射，使用的是~@app.route~装饰器，~@app.route~装饰器中，可以指定URL规则来传递参数以进行更详细的映射；比如要映射一个文章详情页面，文章详情的~path~是~/article/id/~， id 可能为1, 2, 3等；
+  #+begin_src python
+    @app.route('/article/<id>')
+    def article(id):
+        return f'{id} article detail'
+  #+end_src
+  
+  其中 ~<id>~ 为固定用法，语法为 ~<variable_name>~ ， ~variable_name~ 默认为字符串型；如果需要指定类型，可以使用 ~<converter:variable_name>~ ，中间不能带空格；其中  ~converter~ 为类型，枚举如下：
+  
+   - string :: 默认的数据类型，除去 ~\/~ 的文本字符
+   - int :: 整型
+   - float :: 浮点型
+   - path :: 接受文本字符，包括 ~\/~
+   - uuid :: 只接受UUID字符串
+   - any :: 可以指定多种路径，如下
+            
+     #+begin_src python
+       # url_path可以是blog, article中的一个
+       @app.route('/<any(blog, article):url_path>/')
+       def handle(url_path):
+           return f'the path is {path}'
+     #+end_src
+
+   - 传递参数
+     ~@app.route('/path/<arg>')~ ，其中参数被包函在尖括号中，这个参数将传递给视图函数处理，所以视图函数必需带同名参数
+     #+begin_src python
+          @app.route('/list_ar/<id>') # 以/结尾
+          def article_list(id):
+              return f'article_list: {id}'
+        #+end_src
+        
+   - 参数的数据类型：
+     1. 如果没有指定数据类型，则默认使用 ~string~ 类型，不包含 ~\/~ 的字符串
+     2. ~int~ 数据类型只能接收 ~int~
+     3. ~float~ 类型只能接收 ~float~
+     4. ~path~ 可以接受包含 ~\/~ 的字符串
+     5. ~uuid~ 只接收 ~UUID~ 字符串，可以用来数据库的主键
+
+
+   - 接收用户传递的参数
+     1. 使用path的方式，将参数嵌入到URL中； *对搜索引擎友好*
+     2. 通过查询字符串的方式，即为 ~?key=value~ 的方式
+        #+begin_src python
+          @app.route('/p/')
+          def handle_p():
+              wd = request.args.get('wd')
+              return f'允许通过查询字符串传递的参数为：{wd}'
+        #+end_src
+* URL for使用详解
+  第一个参数为endpoint，必传参数，必须为视图函数
+  一个网址最终由一个视图函数处理，这个视图函数处理完用户请求后返回一个处理结果，
+  
+  ~url_for~ 基本使用
+  1. 第一个参数应该是视图函数函数名，后面的参数传递给URL，如果传递的参数在URL中已定义，则此参数被当做path的形式给URL；若此参数未在URL中预先定义，则该参数将变成查询字符串的形式放于URL中；
+  2. 基本使用
+     #+begin_src python
+       @app.route('/url_for/detail/<id>/')
+       def url_detail(id):
+           return 'detail'
+
+       print(usr_for('url_detail', id=1, page=2))
+       # 构建出来的内容即为 /usr_for/detail/1/?page=2
+     #+end_src
+  
+  ~url_for~ 优点：
+    1. 相比于直接return 一个URL，当修改URL地址时，不需要修改对应的视图函数，url_for总能找到对应的视图函数
+    2. ~url_for~ 传递需要转义的字符时，会自动处理特殊字符，不需要手动处理
+    3. 示例
+       #+begin_src python
+         url = url_for('login', next='/')
+         # 会自动将'/'编码，不需要手动去转义
+         # url = login/?next=%2F
+       #+end_src
+
+* 自定义URL转换器
+  - 自定义 ~URL~ 转换器的方式
+    1. 实现一个类，继承自 ~BaseConverter~
+    2. 在自定义的类中，重写 ~regex~ ，也就是这个变量的正则表达式
+    3. 将自定义的类，映射到 ~app.url_map.converters~ 上，比如
+       #+begin_src python
+         class TelephoneConveter(BaseConverter):
+             # 这里要直接将所用的正则表达式赋给 regex
+             regex = r'1[85734]\d{9}'
+
+         app.url_map.converters['tel'] = TelephoneConveter
+       #+end_src
+
+  - to_python的作用
+    使用这个方法得到的返回值，将做为参数传送给视图函数
+
+  - to_url的作用
+    这个函数的返回值将会在调用~url_for~的时候生成符合要求的URL形式
+
+  - 注解 :: 
+         
+    1. ~url_for~函数通过视图函数的函数名找到对应的URL，并可以使用参数为对应的变量；
+    2. to_url函数的返回值实际是先对入参进行处理，然后将这个返回值做为参数传送给URL中的变量，由此拼接为完整的URL
+    #+begin_src python
+      class ListConverter(BaseConverter):
+          # to_python 处理定义的参数，并将处理结果返回给视图函数
+          def to_python(self, value):
+              value = value.split('+')
+              return value
+
+          def to_url(self, value):
+              print(value)
+              # print(url_for('/converter/', boards=value))
+              return "hello"
+
+      @app.route('/converter/posts/<list:boards>')
+      def converter_post_boards(boards):
+          # 传统方式
+          # boards = boards.split('+')
+
+          return f"you boards is: {boards}"
+
+      @app.route('/converter/')
+      def converter_hello_world():
+          print(url_for('converter_post_boards', boards=['a', 'b']))
+          return "hello, world"
+
+      # 假设函数如上
+      # 当使用 url_for 查找对应的URL时，通过boards传入对应的参数 ['a', 'b']
+      # 由于原本boards是list类型，则调用to_url对传入的参数进行处理，即value
+      # 返回hello，将这个返回值返回给 URL 的 boards
+      # 则最终结果为 converter/posts/hello
+    #+end_src
+* URL小细节
+  1. 同一网段之间访问
+     - 默认的IP地址设定为127.0.0.1，其它机器无法访问，需要将host指定为0.0.0.0才能被其它地址访问
+
+  2. 指定端口
+     - 为port指定值，即可设定端口号
+
+  3. URL唯一
+     - 在定义URL时，一定要记得最后加一个斜杠；如果不加斜杠，但在浏览器中访问加了斜杠的URL时，会导致无法访问；
+     - 搜索引擎会将添加斜杠和不加斜杠的视为两个URL，不利于搜索引擎优化
+
+  4. GET请求和POST请求
+     - 在网络请求中有许多请求方式，如 ~GET~ ~POST~ ~DELETE~ ~PUT~ 等请求，最常用的是 ~POST~ 和 ~GET~
+     - ~GET~ 从指定的资源请求数据。
+     - ~POST~ 向指定的资源提交要被处理的数据
+     - 关于参数传递
+       1. ~GET~ 将参数放到URL中，通过 ~?xxx=xxx~ 的形式传递，由于将参数放到了URL中，安全性不足；
+       2. ~POST~ 请求会把参数放到 ~Form Data~ 中；参数处于URL中，可以被抓包获取；因为POST请求可以提交数据，增加了较大的安全风险；
+
+  5. 在flask的route中，默认只使用get方式，如果想使用其它请求方法，需要method参数
+* 页面跳转和重定向
+  - 永久重定向： http的状态码是301，多用于旧网址被废弃了要转到一个新的网址确保用户的访问；
+  - 暂时性重定向： http的状态码是302，表示页面的暂时性跳转，如用于访问前鉴权；
+
+    在flask中，重定向是通过 ~flask.redict(location, code=302)~ 这个函数来实现； ~location~ 表示重定向指向的 ~URL~ ，应该配合之前的 ~url_for()~ 使用， ~code~ 表示重定向的返回码，默认是 302 暂时重定向，可以改为 301 为永久重定向；
+    #+begin_src python
+      @app.route('/redirect/login/')
+      def redirect_login():
+          return 'This is login page'
+
+      @app.route('/redirect/profile/')
+      def redirect_profile():
+          if request.args.get('name'):
+              return 'Personal INFO'
+          else:
+              # return redirect('/redirect/login')
+              return redirect(url_for('redirect_login'), code=302)
+    #+end_src
+* 响应与返回值
+  视图函数的返回值会被自动转衡为一个响应对系， ~flask~ 的转换逻辑如下：
+  1. 如果返回的是一个合法的响应对象，则直接返回
+  2. 如果返回的是一个字符串，那么 ~flask~ 会重新创建一个 ~werkzeug.wrappers.Response~ 对象， ~Rsponse~ 将该字符串作为主体，状态码为 ~200~ ， ~MIME~ 类型为 ~text/html~ ，然后返回该 ~Response~ 对象
+  3. 如果返回的是一个元组，元组中的数据类型是 ~response, status, headers~ ， ~status~ 会覆盖默认的 ~200~ 状态码， ~header~ 可以是一个列表或者字母，作为额外消息头
+  4. 如果以上条件都不满足， ~Flask~ 会假设返回值是一个合法的 ~WSGI~ 应用程序，此时将返回值通过 ~Response.force_type(rv, request.environ)~ 转换为一个请求对象，并将其返回值做为结果返回；
+     

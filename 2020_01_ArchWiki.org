@@ -1,0 +1,280 @@
+#+title:Arch手记
+#+author: Eric
+* 基本流程
+** 1. 安装步骤
+   遵循wiki上面的步骤，可顺利安装，本篇主要为Archlinux配置说明
+   Arch wiki：https://wiki.archlinux.org/index.php/Installation_guide
+*** 系统基础
+    遵循wiki上面的步骤，可顺利安装
+    *Please read Archwiki*
+    
+    注意理解fdisk分区命令中，对磁盘细节的划分
+**** 启用网卡
+     archlinux安装后无法联网解决方法
+    
+     ip link '查看网卡名称，如enp4s0或eth0
+     ip link set enp4s0 up '启动网卡
+     dhcpcd enp4s0 '自动配置有线网络
+     systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
+     完成！以后系统开机自动联网！
+**** 安装引导
+     #+BEGIN_EXAMPLE
+     # grub-install --target=i386-pc /dev/sdX
+     #+END_EXAMPLE
+     where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
+*** 图形界面
+    #+BEGIN_SRC shell
+      # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
+      pacman -S xorg xorg-xinit
+      # 然后安装i3程序包组
+      # 为了正常使用，往往需要安装一个虚拟终端
+      pacman -S rxvt-unicode
+      # 程序组列表：https://www.archlinux.org/groups/
+      pacman -S i3
+    #+END_SRC
+*** 命令：fdisk
+    fdisk 进入交互界面：
+    n：新建分区
+    w：写入
+*** 中文化
+    https://wiki.archlinux.org/index.php/Localization/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
+    
+    参见: *Archwiki*
+** 2. 安装基本的Xorg及Xorg-xinit
+   Arch wiki：https://wiki.archlinux.org/index.php/Xorg
+   #+NAME:123
+   #+BEGIN_SRC shell
+     pacman -S xorg xorg-xinit
+   #+END_SRC
+** 3. 安装并配置i3
+   Arch wiki：https://wiki.archlinux.org/index.php/I3
+** 4. 中文化设置
+   Arch wiki：https://wiki.archlinux.org/index.php/Localization
+***  安装小小(yong)输入法
+    - 前置
+      yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
+    #+BEGIN_SRC shell
+    wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
+
+      7za e <archive name>
+    #+END_SRC
+* 安装Arch双系统
+** 配置Grub引导
+   加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
+   然后运行如下命令，更新 ~/boot/grub/custom.cfg~
+   #+BEGIN_EXAMPLE
+   # grub-mkconfig -o /boot/grub/grub.cfg
+   #+END_EXAMPLE
+   
+   参考ArchWiki: https://wiki.archlinux.org/index.php/GRUB
+   本地参考如下
+   #+BEGIN_EXAMPLE
+   ### BEGIN /etc/grub.d/30_os-prober ###
+   menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-78FC9A61FC9A1A08' {
+   insmod part_msdos
+         insmod ntfs
+         set root='hd0,msdos1'
+         if [ x$feature_platform_search_hint = xy ]; then
+         search --no-floppy --fs-uuid --set=root --hint-ieee1275='ieee1275//disk@0,msdos1' --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  78FC9A61FC9A1A08
+         else
+         search --no-floppy --fs-uuid --set=root 78FC9A61FC9A1A08
+         fi
+         parttool ${root} hidden-
+         chainloader +1
+   }
+   ### END /etc/grub.d/30_os-prober ###
+   #+END_EXAMPLE
+* Arch安装配置Sway（基础环境）
+  ~Sway~ 是一个基于 ~wayland~ 的窗口管理软件，它兼容 ~i3~ 的配置，可以看成 ~i3~ 的 ~wayland~ 实现
+  尝试新技术，配置 ~Arch+Sway~ 的基础桌面环境
+  首先安装了基本的 ~Arch~ ，并且安装了完整的 ~base-devel~ 和 ~git~
+  
+  ~Arch~ 的官方仓库提供了完整的 ~sway~ ，但是它基于老旧的 ~wlc~ 和 ~sway~ ，所以我选择了AUR仓库中的 ~wlroots-git~ 和 ~sway-git~
+** 从 ~AUR~ 安装 ~wlroots-git~ 和 ~sway-git~
+   首先找到 ~Arch~ 提供的 ~AUR~ 仓库
+   分别为：
+   https://aur.archlinux.org/sway-git.git
+   https://aur.archlinux.org/wlroots-git.git
+   
+   由于是 ~git~ 仓库，直接使用 ~git~ 下载：
+   #+BEGIN_EXAMPLE
+   git clone https://aur.archlinux.org/sway-git.git /tmp/sway
+   git clone https://aur.archlinux.org/wlroots-git.git /tmp/wlroots
+   #+END_EXAMPLE
+   然后可以看到相应目录下的 ~PKGBUILD~
+   阅读发现没有什么难处，检查依赖并下载，然后安装
+   
+   直接 ~makepkg -s PKGBUILD~ 
+   这一步将会使用 ~pacman~ 自动解决依赖，并且自动编译成相应的软件包
+   *注意：需要在普通用户下执行*
+   
+   然后使用 ~pacman -U PACKAGENAME~ 安装已经编译完成的包
+   #+BEGIN_EXAMPLE
+   pacman -U wlroots-git.tar.gz
+   #+END_EXAMPLE
+
+   其中可能有很多依赖需要解决，不过问题不大
+   我为了省事，直接安装了提供的包 ~sway~
+   然后单独卸载了 ~sway~ 和 ~wlc~
+   然后装 ~wlroots-git~
+   最后装了 ~sway~ （依赖于 ~wlroots-git~ 提供的库）
+** 安装tty和其它配置
+   此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
+   
+   进去之后发现乱码，安装字体解决
+   #+BEGIN_EXAMPLE
+   # 暂时不考虑中文
+   pacman -S adobe-source-code-pro-fonts
+   #+END_EXAMPLE
+   然后，终端模拟器是必须的，在这里我选了 ~alacritty~
+   #+BEGIN_EXAMPLE
+   # 没有选择 urxvt，因为我想试用 rust，之前在 alacritty 的项目
+   # 里面发现了关于 wayland 的 issue，看它的支持实际应该很不错
+   # 当然了，没有测试，如果不放心还是选 urxvt
+   pacman -S alacritty
+   #+END_EXAMPLE
+   *切记要更改sway的配置，将终端模拟器改为alacritty*
+   
+   然后可以选择安装 ~dmenu~ 和 ~zsh~
+   #+BEGIN_EXAMPLE
+   pacman -S dmenu zsh
+   #+END_EXAMPLE
+   由于编译安装 ~wlroots~ ~sway~ 的原因，已经装好 ~python3~ 和 ~rust~
+   可以开心的玩耍了
+** 后记
+   这只是最最基础的环境，尚未测试浏览器和编辑器的功能，没有设置壁纸和其它特效
+   
+   然后存在一个问题： ~dmenu~ 的启动菜单在屏幕之外…
+   改用rofi可以完美解决dmenu的问题，而且可以进行相应的说明
+
+   基础的命令环境应该没有什么问题：  ~exa~ + ~bat~ + ~ripgrep~ 等等
+   
+   参考链接：https://drewdevault.com/2019/03/11/Sway-1.0-released.html
+   
+*** 配置时间
+    #+BEGIN_EXAMPLE
+     # 将系统时间写入BIOS（--systohc)
+     hwclock --systohc --localtime
+    #+end_EXAMPLE
+*** 声音
+    使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
+    
+    原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
+    #+BEGIN_EXAMPLE
+      pcm.!default {
+                   type hw
+                   card 1
+      }
+
+      ctl.!default {
+                   type hw
+                   card 0
+      }
+    #+end_EXAMPLE
+* 基本开发环境搭建
+  我们的主要目的是开发 ~Python~ 和 ~Rust~
+  其次是学习 ~Arch~ 和其它桌面环境
+  在配置整个开发环境之前，我们需要先将整个环境变得尽可能好用
+
+  首先卸载 ~dmenu~ ，换用 ~rofi~ ，并对其进行配置
+  #+BEGIN_EXAMPLE
+  set $menu rofi_path | rofi -show run | xargs swaymsg exec
+  #+END_EXAMPLE	
+
+  安装 ~Emacs~ ~Firefox~ 
+  
+  配置 ~Firefox~ 插件 ~Surfingkeys~
+
+  如此基本的工作环境已经搭建完成
+** 安装 ~MySQL~ 数据库
+   在 ~Arch/Linux~ 中，安装 ~Mariadb
+   #+BEGIN_EXAMPLE
+   直接安装相应的软件包
+   pacman -S mysql
+
+   然后执行如下命令：
+   mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+   
+   然后先启动 MySQL
+   # systemctl start mariadb
+
+   先配置相应的 root 密码
+   '/usr/bin/mysqladmin' -u root password 'new-password' 
+   '/usr/bin/mysqladmin' -u root -h lantian password 'new-password'  
+   Alternatively you can run: '/usr/bin/mysql_secure_installation'
+
+   然后启动 MariaDB，按 wiki 步骤执行即可
+   # mysql_secure_installation
+   # systemctl restart mariadb
+   
+   在Mac或Linux上，需要编辑MySQL的配置文件，把数据库默认的编码全部改为UTF-8。MySQL的配置文件默认存放在/etc/my.cnf或者/etc/mysql/my.cnf：
+
+   [client]
+   default-character-set = utf8
+
+   [mysqld]
+   default-storage-engine = INNODB
+   character-set-server = utf8
+   collation-server = utf8_general_ci
+   #+END_EXAMPLE
+* 问题汇总
+  在整个Arch的安装过程中，我遇到了诸多问题
+  以下一一记录
+** 安装过程中无法连接wifi
+   #+BEGIN_SRC shell
+     wifi-menu
+     dhcpcd
+   #+END_SRC
+   第一个命令打开menu菜单，连接wifi
+   第二个命令进行dhcp，自动获取ip地址
+** 安装grub时报错
+   #+BEGIN_EXAMPLE
+   1 # grub-install /dev/sda
+         2 /usr/sbin/grub-setup: warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
+         3 /usr/sbin/grub-setup: warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
+         4 /usr/sbin/grub-setup: error: will not proceed with blocklists.
+   #+END_EXAMPLE
+   如上报错中有两条warn，一条error；warn可以忽略，对于此error，使用--force强制执行即可！
+   
+   #+BEGIN_SRC shell
+     grub-install /dev/sda --force
+   #+END_SRC
+** 安装 yong 输入法出错
+   #+BEGIN_EXAMPLE
+   Cannot load module /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   Cannot load module /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32 
+   #+END_EXAMPLE
+   由于系统环境为纯64位所致，此错误不影响输入法使用
+** 安装Grub引导报错
+   grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
+   #+BEGIN_EXAMPLE
+   warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
+         warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
+         error: will not proceed with blocklists.
+   #+END_EXAMPLE
+   解决方案：根据字面意思，可以强制写入blocklist；
+   grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB --force
+** 虚机下无法shh到远程服务器
+   报错信息为：
+   packet_write_wait: Connection to 118.24.23.137 port 22: Broken pipe
+   
+   根因为：VMware NAT 网络模式导致
+   
+   解决方法为：手动指定 ssh 参数 -o 'IPQoS=lowdelay throughput'
+   
+   参考链接：https://lvii.github.io/system/2018-08-31-openssh-7.8p1-broken-pipe-under-vmware-vm-with-nat-port-forward/
+** 无声音与麦克风
+   archlinux的linux内核基本适配了相当的硬件，但是可能选择错了主要设备
+** ~git~下载速度过慢
+   善用~proxy~
+   #+begin_example
+     git config --global http.proxy http://127.0.0.1:1080
+     git config --global https.proxy https://127.0.0.1:1080
+   #+end_example
+** ~Chromium~设置~lantern~代理
+   在不需要任何设置的条件下，可以按如下方式设置代理
+   #+BEGIN_SRC shell
+   chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
+   #+END_SRC

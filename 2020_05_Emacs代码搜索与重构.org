@@ -1,0 +1,28 @@
+#+title: Emacs代码搜索与重构工具
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+无论如写什么，都需要对某些内容重命名，于是今天试试代码搜索与重构工具。
+
+试用了一下~color-rg~，似乎还有点小问题，先提个issue，看看作者怎么说；
+
+但是这个功能很重要，现在就需要使用，于是我选择先使用~wgrep~
+* wgrep的安装
+  由于我还是想试用~color-rg~，而且我没有使用靠谱的包管理器，所以这一次采用~git submodule~的方式安装~wgrep~
+
+  安装十分简单，使用~magit-submodule-add~命令，将其下载至本地，将路径加入~load-path~并~require~即可；
+
+  ~wgrep~的项目地址为： https://github.com/mhayashi1120/Emacs-wgrep
+
+  它可以在生成grep buffer中编辑，这些修改会作用于对应的文件，用来重构非常方便；
+* 配合ivy的基本使用 
+  1. 使用~counsel-rg~搜索项目内容
+  2. 使用~ivy-occur~对搜索内容生成grep buffer；默认快捷键~C-c C-o~
+  3. 使用~ivy-wgrep-change-to-wgrep-mode~切换至编辑模式；默认快捷键~C-x C-q~
+  4. 使用~C-c C-s~保存即可生效，或者使用~C-c C-c~调用~wgrep-finish-edit~
+  5. 全部修改完成后，仅仅只是映射到了文件，如果要保存修改的文件，需要使用~wgrep-save-all-buffers~
+
+  还有其它的具体设置，可见于其Readme
+* 使用color-rg
