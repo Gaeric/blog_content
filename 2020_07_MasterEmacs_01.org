@@ -1,0 +1,78 @@
+#+title: Emacs-generic: 通用GUI及GLI配置解析
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  这个文件用来进行通用设置，包括对GUI界面的常规设置及命令行界面的配置
+* 配置说明
+  下面这几列配置分别关闭菜单栏、工具栏及滚动条：
+  #+begin_src emacs-lisp
+    (when (fboundp 'menu-bar-mode)
+      (menu-bar-mode -1))
+    (when (fboundp 'tool-bar-mode)
+      (tool-bar-mode -1))
+    (when (fboundp 'set-scroll-bar-mode)
+      (set-scroll-bar-mode nil))
+  #+end_src
+  
+  Emacs默认的屏幕滚动与其它软件不大相同，这样设置可以使其拥有平滑滚动的效果：
+  #+begin_src emacs-lisp
+    ;; 使屏幕可以平滑滚动
+    (setq scroll-margin 3
+          scroll-conservatively 100)
+  #+end_src
+
+  不需要启动界面，设置这个选项：
+  #+begin_src emacs-lisp
+    ;; inhibit start screen
+    (setq inhibit-startup-screen t)
+  #+end_src
+
+  设置或关闭一些提示音和提示信息：
+  #+begin_src emacs-lisp
+    (setq use-file-dialog nil)
+    (setq use-dialog-box nil)              ;never pop dialog
+    (setq ring-bell-function 'ignore)      ;关闭出错时的提示声
+    (setq ad-redefinition-action 'warn)    ;redefine warning 时进行警告
+  #+end_src
+  
+  一些符合个人使用习惯的默认设置：
+  #+begin_src emacs-lisp
+    (setq default-major-mode 'text-mode)   ;设置默认地主模式为TEXT模式
+    (setq x-select-enable-clipboard t)     ;支持emacs和外部程序的粘贴
+    (setq resize-mini-windows nil)         ;保持minibuffer window固定高度
+    (setq recentf-max-saved-items 2048)    ;设置recentf的默认大小
+    (setq-default comment-style 'indent)   ;设定自动缩进的注释风格
+    (setq-default indent-tabs-mode nil)    ;不使用Tab键插入\t
+    (setq-default cursor-type 'bar)        ;设置默认的光标样式
+    (setq make-backup-files nil)           ;默认不进行备份
+  #+end_src
+
+
+  简化需要确认时的输入：
+  #+begin_src emacs-lisp
+    (fset 'yes-or-no-p 'y-or-n-p)          ;以 y/n代表 yes/no
+  #+end_src
+  
+  GUI界面的字体大小设置：
+  #+begin_src emacs-lisp
+    (set-face-attribute 'default nil :height 110) ;设置字体大小
+  #+end_src
+
+  这段配置用来将site-lisp中的文件夹全部加入load-path，以便于加载安装包
+  #+begin_src emacs-lisp
+    ;; Set up `load-path'
+    (eval-when-compile (require 'cl))
+    (if (fboundp 'normal-top-level-add-to-load-path)
+        (let* ((site-lisp-dir "~/.emacs.d/site-lisp/")
+               (default-directory site-lisp-dir))
+          (progn
+            (setq load-path
+                  (append
+                   (loop for dir in (directory-files site-lisp-dir)
+                         unless (string-match "^\\." dir)
+                         collecting (expand-file-name dir))
+                   load-path)))))
+  #+end_src
