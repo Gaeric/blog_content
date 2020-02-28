@@ -51,7 +51,7 @@
   #+end_src
 
 
-  简化需要确认时的输入：
+  有时候交互式命令需要确认输入yes或no，对其使用y或者n代替简化需要确认时的输入：
   #+begin_src emacs-lisp
     (fset 'yes-or-no-p 'y-or-n-p)          ;以 y/n代表 yes/no
   #+end_src
