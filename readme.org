@@ -1,29 +1,31 @@
 #+title: 基于org和Flask的纯文本博客系统
 #+startup: content
-#+author: Eric
+#+author: Gaeric
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-将~org~文件转化为博客是我期待以久的事情，之前看过使用~Hexo~此类的博客系统，但是一直不想搭，最近学完了整套~Flask~，觉得用~Flask~框架配合org导出(org-export)的html文件搭一个静态博客应当是一件非常容易的事情，于是这个博客系统的方案诞生了。
-* 博客系统方案
-  这个方案是因~Emacs~的~org-mode~而生的，~org-mode~和~Emacs~的配置是必须的；另外，它还依赖于~nginx~和~Python~及其安装包[包括~Flask~、~uwsgi~及~supervisor~等]
+将org文件转化为博客是我期待以久的事情，之前看过使用Hexo此类的博客系统，但是一直不想搭，最近学完了整套Flask，觉得用Flask框架配合org导出(org-export)的html文件搭一个静态博客应当是一件非常容易的事情，于是这个博客系统的方案诞生了。
 
-  - 博客的文本内容由~Emacs~内置的~org-mode~生成，文本内容在org文件中编写并整理，配置org-export选项后经org-publish的方式发布，形成html文档；
-  - 博客应用服务的基础http服务由~uwsgi~和~nginx~支撑，内部逻辑基于~Flask~框架编写，主要使用其中的~Jinja2~模板和~Flask~提供的~hook~
-  - 前端使用~uikit~作为框架基础，由于我并不怎么了解css，所以这部分不在博客中介绍
-  - 应用扫描指定博客目录的html文件，提取为博客索引，根据索引访问某篇博客时，通过正则表达式解析html内容，填充入~Jinja2~模板中，经前端渲染后反馈用户
+博客地址为：http://lantianzero.club
+* 博客系统方案
+  这个方案是因Emacs的org-mode而生的，org-mode和Emacs的配置是必须的；另外，它还依赖于nginx和Python及其安装包[包括Flask、uwsgi及supervisor等]
+
+  - 博客的文本内容由Emacs内置的org-mode生成，文本内容在org文件中编写并整理，配置org-export选项后经org-publish的方式发布，形成html文档；
+  - 博客应用服务的基础http服务由uwsgi和nginx支撑，内部逻辑基于Flask框架编写，主要使用其中的Jinja2模板和Flask提供的hook
+  - 前端使用uikit作为框架基础，由于我并不怎么了解css，所以这部分不在博客中介绍
+  - 应用扫描指定博客目录的html文件，提取为博客索引，根据索引访问某篇博客时，通过正则表达式解析html内容，填充入Jinja2模板中，经前端渲染后反馈用户
 ** 选择的理由
    - 优点：
      1. 依赖极少配置简单：org博客方案有许多成熟的例子，虽然我没有逐一使用，但就我了解，这些东西都有相当的依赖，要么需要进行一些繁杂的配置；
-     2. 没有重复造轮子：org文体的转化由~org-mode~自带的org-export完成，不需要第三方工具解析，也不需要进行多次转换，org-export支持的特性都能得到有效保证；
+     2. 没有重复造轮子：org文体的转化由org-mode自带的org-export完成，不需要第三方工具解析，也不需要进行多次转换，org-export支持的特性都能得到有效保证；
      3. 对页面拥有绝对的控制力，界面的效果完全取决于你的前端水平
    - 缺点：
      1. 非开箱及用，需要个人理解--50行python代码
      2. 界面效果完全取决于前端水平，如果追求界面精致美观，那么需要更多的前端知识，否则可能造成用户体验较差（比如我）
-     3. 如果需求诸如评论类的交互功能，需要更多的~Flask~基础，不过对于静态博客而言，了解~Jinja2~和~Flask~提供的hook已经足够；
+     3. 如果需求诸如评论类的交互功能，需要更多的Flask基础，不过对于静态博客而言，了解Jinja2和Flask提供的hook已经足够；
 * 配置说明
 ** org-mode配置
-   ~org-mode~的配置主要是防止使用org-html-publish-to-html使加入内嵌的css和javascript，这样方便我们处理样式，尤其是导出的源码
+   org-mode的配置主要是防止使用org-html-publish-to-html使加入内嵌的css和javascript，这样方便我们处理样式，尤其是导出的源码
    #+begin_src elisp
      ;; 导出的源代码内容使用单独的css文件控制样式
      (setq org-html-htmlize-output-type 'css)
@@ -41,7 +43,7 @@
               )))
    #+end_src
 ** python代码
-   1. 使用~before_request~这个~hook~以更新索引列表
+   1. 使用before_request这个hook以更新索引列表
       这个函数获取blog所在目录的所有文件，然后生成html文件来表并绑定至g对象
       #+begin_src python
         @app.before_request
@@ -60,7 +62,7 @@
                 g.HTML_LIST = ""
       #+end_src
    2. 解析org生成的html文件
-      因为~org-mode~生成的html极为规则，这些直接使用正则表达式抽取其中的title和body，以便于后面~Jinja2~填充；
+      因为org-mode生成的html极为规则，这些直接使用正则表达式抽取其中的title和body，以便于后面Jinja2填充；
       #+begin_src python
         title_re = re.compile(r'<title>([\s\S]*)<\/title>')
         body_re = re.compile(r'<body>([\s\S]*)<\/body>')
@@ -87,7 +89,7 @@
                             if body_ma else html_context
       #+end_src
    3. 博客索引的过滤器
-      这里使用~template_filter~类自定义~Jinja2~过滤器，从g对象中获取文件，通过OrgBlog类获取其title
+      这里使用template_filter类自定义Jinja2过滤器，从g对象中获取文件，通过OrgBlog类获取其title
       #+begin_src python
         @app.template_filter('html_title')
         def get_static_title(ox_html):
@@ -108,7 +110,7 @@
            {% block title %}{{ title }}{% endblock %}
            {% block content %}{{ content|safe }}{% endblock %}
          #+end_src
-   5. 根据选择的索引返回文件由~Jinja2~渲染
+   5. 根据选择的索引返回文件由Jinja2渲染
       #+begin_src python
         @app.route('/blog/<path:blog_file>')
         def show_blog(blog_file):

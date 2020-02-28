@@ -1,6 +1,6 @@
 #+title: 通用Web概念及Flask基础知识
 #+startup: content
-#+author: Eric
+#+author: Gaeric
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}

@@ -1,5 +1,5 @@
 #+title:Arch手记
-#+author: Eric
+#+author: Gaeric
 * 基本流程
 ** 1. 安装步骤
    遵循wiki上面的步骤，可顺利安装，本篇主要为Archlinux配置说明
