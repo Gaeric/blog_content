@@ -1,0 +1,31 @@
+#+title: Emacs-utils: Emacs常用工具配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  init-utils中有一些常用的函数实现，用来增强Emacs的部分功能，或是实现一些函数用以简化配置文件
+* 内容说明
+  ~local-require~用于加载位于~site-lisp~文件夹中的文件；
+  
+  ~add-auto-mode~主要用于对某些文件自动启动指定的编辑模式，如~html~文件启动~web-mode~的编辑模式
+
+  ~sanityinc/string-all-matchs~用于补充emacs缺少的字符串处理函数；匹配字符串中的全部正则表达式并返回其结果；
+  
+  ~delete-this-file-and-buffer~是一个交互式命令，用于删除当前buffer对应的文件，并关闭buffer
+  
+  ~rename-this-file-and-buffer~用于重命名当然buffer及对应的文件
+  
+  ~borwse-current-file~在浏览器中打开当前文件
+  
+  ~gaeric/up-list~是对up-list函数的封装，忽略其可能发生的错误，以避免在~debug-error-on~开启时频繁报错，用于从匹配的括号内跳出：
+  #+begin_example
+    如光标位于 (<光标>) 处时，使用gaeric/up-list时，可以跳出括号，结果为：()<光标>
+  #+end_example
+  
+  ~gaeric/backword-up-list~是对backward-up-list的封装，
+* 备注
+** TODO 验证local-require是否存在性能优势
+   ~local-require~这个宏主要用于确定性地加载某个文件，但是由于在~init-generic~中已经将~site-lisp~下的所有文件夹均加入了~load-list~，如果没有性能优势，则使用~require~即可；
+** TODO 考虑由awesome-pair代替electric-pair, up-list及backword-up-list
