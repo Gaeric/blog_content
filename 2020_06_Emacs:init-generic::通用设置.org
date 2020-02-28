@@ -76,3 +76,17 @@
                          collecting (expand-file-name dir))
                    load-path)))))
   #+end_src
+
+  ~dired~有时会打开过多的~DIRED BUFFER~，如果不想打开过多buffer，可以在~dired-mode~下使用a键，触发~fired-find-alternate-file~函数，进入文件或文件夹
+
+  如下设置，会将~RET~及~^~变更
+  #+begin_src emacs-lisp
+    ;;----------------------------------------------------------------------------
+    ;; make dired use the same buffer for viewing directory
+    ;; http://ergoemacs.org/emacs/emacs_dired_tips.html
+    ;;----------------------------------------------------------------------------
+    ; was dired-advertised-find-file
+    (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+    ; was dired-up-directory
+    (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file "..")))  
+  #+end_src
