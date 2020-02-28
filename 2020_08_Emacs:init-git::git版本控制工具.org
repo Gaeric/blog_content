@@ -1,0 +1,38 @@
+#+title: Emacs-git: Git SCM工具配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  这个文件用来配置git版本控制工具，主要来自purcell的[[https://github.com/purcell/emacs.d/blob/master/lisp/init-git.el][配置]]
+* 配置说明
+** 库函数说明
+   安装上述软件前，需要安装大量的~emacs-lisp~函数库，包括~f, s, pcre2el, dash, libgit2, async~等
+   
+   由于这些函数库都放置于site-lisp下，是库的同名文件，依据~init-generic~中加载site-lisp至load-path中的设置，重启即可生效；
+   
+   而~with-editor~和~transient~则在site-lisp/<name>/lisp目录中，需要手动加载；
+** git-modes
+   ~git-modes~是用于编写~gitignore~、~gitattributes~以及~gitconfig~文件的主要模式；
+
+   它的项目地址为：https://github.com/magit/git-modes
+** magit
+   Magit is an interface to the version control system Git, implemented as an Emacs package. 
+   
+   在安装magit本身之前需要额外安装其项目下提供的~with-edtior~, ~libgit~, ~transient~及~dash~
+   
+   它的项目地址为：https://github.com/magit/magit
+** magit-todos
+   ~magit-todos~模式可以在magit-status的buffer中显示所有的TODO项；
+
+   它的项目地址为：https://github.com/alphapapa/magit-todos
+** hl-todo
+   ~hl-todo~是magit-todos的依赖项，这个package主要用于高亮显示代码中的todo内容并便于跳转；
+* 备注：
+** TODO magit-todo
+   magit-todo如何忽略指定文件夹
+** TODO magit
+   magit加载导致启动时间较长
+** TODO magit with vc
+   ~magit~和~vc~之间的配合使用
