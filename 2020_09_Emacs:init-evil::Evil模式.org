@@ -1,0 +1,156 @@
+#+title: Emacs-evil: Evil及部分插件配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  Evil是Emacs的vim模拟器，它可以使我们在Emacs中使用vim的文本操作方法；
+
+  使用Evil之前一定要对vim的文本操作方法有所了解，才能真正提高文本编辑的效率：上下左右移动带来的便捷微乎其微，真正需要掌握的是操作文本内容的方法。如果你尚未入门或是只寻获了些道听途说的技巧，可以阅读：[[https://book.douban.com/subject/25869486/][《vim实用技巧》]]
+
+  evil-mode使Emacs成为了一个vim模拟器，还有一些基于它的插件来增强Evil的内容
+  
+  我使用下列插件配置整个evil模式：
+  - evil :: Emacs的evil模拟器
+  - general :: general提供了类leader键的方法，使用leader键可以减少按Ctrl和Alt等控制键的次数；不依赖于evil，可直接为Emacs配置快捷键
+  - evil-surround :: 类于vim-surround，可以在evil模式下方便地操作匹配的符号
+  - evil-exchange :: 类vim-exchange，可以方便地交换两处字符
+  - evil-visualstar :: 在可视模式中选中了部分文本后可以直接按~*~和~#~键搜索对应的内容
+  - evil-nerd-commenter :: 快速进行注释，不依赖于evil
+* 内容说明
+  #+begin_src emacs-lisp
+  (setq evil-move-cursor-back t)
+  #+end_src
+  切换至~normal~模式时，光标会回退一位（与vim行为保持一致）
+
+  #+begin_src emacs-lisp
+    (general-create-definer gaeric-space-leader-def
+      :prefix "SPC"
+      :states '(normal visual))
+  #+end_src
+  将~<SPC>~设为leader键之一，这个~leader~主要用来与当前编辑模式或编辑无关的通用操作，诸如打开文件、保存文件、切换~minor-mode~等
+
+  #+begin_src emacs-lisp
+    (general-create-definer gaeric-comma-leader-def
+      :prefix ","
+      :states '(normal visual))
+  #+end_src
+  将~,~键设置为另一个leader，这个leader主要用来配置与编辑或编辑模式强相关的操作，诸如：org-mode下打开~org-pomodoro~、~org-clock~等
+
+  #+begin_src emacs-lisp
+    (evil-declare-key 'normal org-mode-map
+      "$" 'org-end-of-line ; smarter behaviour on headlines etc.
+      "^" 'org-beginning-of-line ; ditto
+      (kbd "TAB") 'org-cycle)
+  #+end_src
+  使用~evil-declare-key~，可以非常方便地定义某个模式下~evil~的按键；如上配置，在org-mode中~normal~模式下，按~TAB~键可以直接执行~org-cycle~命令，去展开或折叠某个~heading~；按~$ ^~两个按键可以执行各自对应的光标跳转命令；
+  
+
+  #+begin_src emacs-lisp
+    ;; {{ specify major mode uses Evil (vim) NORMAL state or EMACS original state.
+    ;; You may delete this setup to use Evil NORMAL state always.
+    (dolist (p '((minibuffer-inactive-mode . emacs)
+                 (calendar-mode . emacs)
+                 (special-mode . emacs)
+                 (grep-mode . emacs)
+                 (Info-mode . emacs)
+                 (term-mode . emacs)
+                 (sdcv-mode . emacs)
+                 (anaconda-nav-mode . emacs)
+                 (log-edit-mode . emacs)
+                 (vc-log-edit-mode . emacs)
+                 (magit-log-edit-mode . emacs)
+                 (erc-mode . emacs)
+                 (neotree-mode . emacs)
+                 (w3m-mode . emacs)
+                 (gud-mode . emacs)
+                 (help-mode . emacs)
+                 (eshell-mode . emacs)
+                 (shell-mode . emacs)
+                 (xref--xref-buffer-mode . emacs)
+                 ;;(message-mode . emacs)
+                 (epa-key-list-mode . emacs)
+                 (fundamental-mode . emacs)
+                 (weibo-timeline-mode . emacs)
+                 (weibo-post-mode . emacs)
+                 (woman-mode . emacs)
+                 (sr-mode . emacs)
+                 (profiler-report-mode . emacs)
+                 (dired-mode . emacs)
+                 (compilation-mode . emacs)
+                 (speedbar-mode . emacs)
+                 (ivy-occur-mode . emacs)
+                 (ffip-file-mode . emacs)
+                 (ivy-occur-grep-mode . normal)
+                 (messages-buffer-mode . normal)
+                 (js2-error-buffer-mode . emacs)))
+      (evil-set-initial-state (car p) (cdr p)))
+    ;; }}
+  #+end_src
+  在某些特定的模式下，并不需要开启evil以编辑文本，上面这一串配置使evil在这些模式下使用指定的模式；~emacs~代表~emacs~默认的编辑模式，而~normal~则是~evil~的~normal~模式
+
+  #+begin_src emacs-lisp
+    ;; Prefer Emacs way after pressing ":" in evil-mode
+    (define-key evil-ex-completion-map (kbd "C-a") 'move-beginning-of-line)
+    (define-key evil-ex-completion-map (kbd "C-b") 'backward-char)
+    (define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
+    (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
+  #+end_src
+  上面的配置为~evil-ex~模式指定快捷键
+
+  #+begin_src emacs-lisp
+    (defun evil-surround-emacs-lisp-mode-hook-setup ()
+      (push '(?\( . ("( " . ")")) evil-surround-pairs-alist)
+      (push '(?` . ("`" . "'")) evil-surround-pairs-alist))
+    (add-hook 'emacs-lisp-mode-hook 'evil-surround-emacs-lisp-mode-hook-setup)
+
+    (defun evil-surround-org-mode-hook-setup ()
+      (push '(93 . ("[[" . "]]")) evil-surround-pairs-alist) ; ]
+      (push '(?= . ("=" . "=")) evil-surround-pairs-alist)
+      (push '(?~ . ("~" . "~")) evil-surround-pairs-alist))
+    (add-hook 'org-mode-hook 'evil-surround-org-mode-hook-setup)
+  #+end_src
+  上面的配置为~org-mode~和~emacs-lisp-mode~分别加入一些匹配的符号，以便于surround可以操纵它；~evil-sourround~的具体操作可见于其仓库：https://github.com/emacs-evil/evil-surround
+
+  evil-exchange的使用方法见：https://github.com/Dewdrops/evil-exchange
+  
+  evil-visualstar的使用方法见：https://github.com/bling/evil-visualstar
+
+  evil-nerd-commenter可以用于快速注释文本，其使用方法见：https://github.com/redguardtoo/evil-nerd-commenter
+
+  #+begin_src emacs-lisp
+    ;; Spaces keybinds for vanilla Emacs
+    (gaeric-space-leader-def
+      "ff"    'find-file
+      "fo"    'find-file-other-window
+      "bo"    'switch-to-buffer-other-window
+      "fs"    'save-buffer
+      "bd"    'kill-this-buffer
+      "bs"    'switch-to-scratch-buffer
+      "bm"    'switch-to-message-buffer
+      "fed"   'open-init-file
+      "w/"    'split-window-right
+      "w-"    'split-window-below
+      "ad"    'dired
+      "tl"    'toggle-truncate-lines
+      "tn"    'linum-mode
+      "wc"    'count-words
+      "!"     'shell-command
+      "nw"    'widen)
+
+    (gaeric-comma-leader-def
+        "cx"  'copy-to-x-clipboard
+        "px"  'paste-from-x-clipboard
+        "kc"  'kill-ring-to-clipboard
+        ","   'evil-repeat-find-char-reverse)
+  #+end_src
+  ~gaeric-space-leader-def~用于控制部分与编辑和编辑模式无关的操作
+  
+  ~gaeric-comma-leader-def~用于控制与编辑强相关的操作；其中~copy-to-x-clipboard~、~paste-from-x-clipboard~、~kill-ring-to-clipboard~用于控制剪切板，实现终端下emacs与GUI的复制粘贴操作
+* 备注
+** TODO 使用evil-numbers
+   https://github.com/cofi/evil-numbers
+** TODO 加入ffip支持
+** TODO [#A] evil-matchit
+   evil-matchit可用于在匹配的标签间快速跳转
