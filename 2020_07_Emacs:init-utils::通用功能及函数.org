@@ -26,6 +26,6 @@
   
   ~gaeric/backword-up-list~是对backward-up-list的封装，
 * 备注
-** TODO 验证local-require是否存在性能优势
+** TODO 验证local-require是否存在性能的优势
    ~local-require~这个宏主要用于确定性地加载某个文件，但是由于在~init-generic~中已经将~site-lisp~下的所有文件夹均加入了~load-list~，如果没有性能优势，则使用~require~即可；
 ** TODO 考虑由awesome-pair代替electric-pair, up-list及backword-up-list
