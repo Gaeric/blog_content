@@ -270,11 +270,14 @@
 ** ~git~下载速度过慢
    善用~proxy~
    #+begin_example
-     git config --global http.proxy http://127.0.0.1:1080
-     git config --global https.proxy https://127.0.0.1:1080
+   # 设置代理
+   git config --global http.proxy http://127.0.0.1:1080
+   # 取消代理
+   git config --global unset http.proxy
    #+end_example
 ** ~Chromium~设置~lantern~代理
    在不需要任何设置的条件下，可以按如下方式设置代理
    #+BEGIN_SRC shell
    chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
    #+END_SRC
+   
