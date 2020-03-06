@@ -1,0 +1,47 @@
+#+title: Emacs-theme: 主题配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  ~init-theme~配置关于Emacs主题的相关内容，我使用~doom-theme~这个package，并使用其中的主题
+* 内容说明
+  #+begin_src emacs-lisp
+    (require 'doom-themes)
+    (require 'doom-themes-ext-org)
+    (require 'doom-themes-ext-neotree)
+    (require 'doom-themes-ext-treemacs)
+  #+end_src
+  ~doom-theme~中对~org~、~neotree~及~treemacs~有特别的配置，在使用其主题时，要将这些文件加入~load-path~并~require~
+
+  #+begin_src emacs-lisp
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  #+end_src
+  使能~doom-theme~中的斜体和粗体
+  
+  #+begin_src emacs-lisp
+    ;; Enable flashing mode-line on errors
+    ;; (doom-themes-visual-bell-config)
+
+    ;; Enable custom neotree theme (all-the-icons must be installed!)
+    (doom-themes-neotree-config)
+    ;; or for treemacs users
+    (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+    (doom-themes-treemacs-config)
+
+    ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config)
+  #+end_src
+  配置~doom-theme~中关于~org~、~neotree~及~treemacs~的设置
+
+  #+begin_src emacs-lisp
+    ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+    ;; may have their own settings.
+    (load-theme 'doom-vibrant t)
+  #+end_src
+  使用~doom-vibrant~主题
+* 备注
+** 需要安装all-the-icons [fonts]
