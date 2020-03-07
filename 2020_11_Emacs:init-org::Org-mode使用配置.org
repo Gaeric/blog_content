@@ -1,0 +1,163 @@
+#+title: Emacs-org: org-mode配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  org-mode是一个功能强大的模式，我使用org-mode作为自己的记事本，并依托其建立blog，用于管理工作中的事务，做为工作用的GTD系统（这份配置与工作配置不尽相同）
+
+  注：org-mode很强大，但是还是应当从自己需要解决的问题入手
+* 配置说明
+  #+begin_src emacs-lisp
+    ;; ----------------------------------------------------------------------
+    ;; 配置org-emphasis，优化org-mode中文体验
+    ;; ----------------------------------------------------------------------
+    (setq org-emphasis-regexp-components
+          ;; add multibyte char at pre and post For chinese
+          '("-[:space:][:multibyte:]('\"{" "-[:space:][:multibyte:].,:!?;'\")}\\[" "[:space:]" "." 1))
+    (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  #+end_src
+  org-mode中原生的适用于代码和等宽字体的强调文本中，需要在用于强调的~~~符号和~=~符号两端加上空格，这符合英文的使用习惯，但是在中文中加入一个空格略显别扭，上面这两行配置用于更新~org-mode~中的~org-emphasis-regexp-components~，在中文中即使不留空格，也会将目标字符串等宽强调；
+  
+  #+begin_src emacs-lisp
+    ;; Non-nil means interpret "_" and "^" for display.
+    ;; 适用于导出
+    (setq org-export-with-sub-superscripts '{})
+    ;; 适用于org-mode中渲染
+    ;; (setq org-use-sub-superscripts '{})
+  #+end_src
+  导出文本时，不要直接将文中的~_~和~^~格式化，如果需要格式化，需要使用~{}~进行包围；
+
+  #+begin_src emacs-lisp
+    ;; ----------------------------------------------------------------------
+    ;; 配置org-mode 标题样式
+    ;; ----------------------------------------------------------------------
+    ;; here goes your Org config :)
+    (custom-set-faces
+     ;; custom-set-faces was added by Custom.
+     ;; If you edit it by hand, you could mess it up, so be careful.
+     ;; Your init file should contain only one such instance.
+     ;; '(org-block ((t (:background "#282C34" :foreground "aquamarine1" :slant italic))))
+     ;; '(org-block-begin-line ((t (:background "#282C34" :foreground "#5B6268"))))
+     '(org-document-title ((t (:foreground "gold1" :height 1.2))))
+     '(org-level-1 ((t (:foreground "DodgerBlue1"  :weight normal  :height 1.0  :blod nil))))
+     '(org-level-2 ((t (:foreground "SteelBlue1"   :weight normal   :height 1.0   :bold nil))))
+     '(org-level-3 ((t (:foreground "DeepSkyBlue1" :weight normal :height 1.0 :bold nil))))
+     '(org-level-4 ((t (:foreground "SkyBlue1"))))
+     '(org-level-5 ((t (:foreground "MediumOrchid1"))))
+     '(org-level-6 ((t (:foreground "hot pink"))))
+     '(org-level-7 ((t (:foreground "magenta"))))
+     '(org-level-8 ((t (:foreground "deep pink")))))
+  #+end_src
+  不喜欢~doom-theme~的~org-title~和~org-heading~样式，上述设置调整其样式
+  
+  #+begin_src emacs-lisp
+    ;; 导出的源代码内容使用单独的css文件控制样式
+    (setq org-html-htmlize-output-type 'css)
+    ;; 不生成默认的css及javascript内容
+    (setq org-html-head-include-default-style nil)
+    (setq org-html-head-include-scripts nil)
+  #+end_src
+  上述代码控制了~org-export~导出html文件的内容，由于博客系统基于Flask搭建，不需要在导出的html文件中内嵌~css~和~js~
+  
+  #+begin_src emacs-lisp
+    (setq org-publish-project-alist
+          '(
+            ;; ... add all the components here (see below)...
+            ("pre_pub"
+             :base-directory "~/org/blog" ;; org文件的目录
+             :base-extension "png\\|org"
+             :publishing-directory "~/py_projects/org_blog/static/static_html" ;导出目录
+             :publishing-function org-html-publish-to-html
+             ;; :auto-sitemap t
+             )))
+  #+end_src
+  设置org-publish设置，用于生成个人博客所需的html文件
+  
+  #+begin_src emacs-lisp
+    ;; org-src-edit时打开新窗口，完成后恢复布局
+    (setq org-src-window-setup 'other-window)
+  #+end_src
+  新版的~org-edit-src~默认为~reorganize-frame~，会更改窗口布局，修改为other-window可以在~org-edit-src-save~后恢复窗口布局
+  
+  #+begin_src emacs-lisp
+    (setq org-todo-keywords
+          '((sequence
+             "TODO(t)" "STARTED(s!)" "SUSPEND(p!@)" "|" "DONE(d!@)" "CANCELLED(c!@/!)")))
+    (setq org-clock-in-switch-to-state "STARTED")
+    (setq org-clock-out-switch-to-state "SUSPEND")
+  #+end_src
+  这里的设置遵循个人的GTD流程，见[[file:2020_11_Emacs:init-org::Org-mode使用配置.org::*GTD流程][GTD流程]] 
+  
+
+  #+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(("t" "Todo" entry
+           (file+headline "~/org/gtd.org" "Workspace")
+           "* TODO [#B] %?\n  %i\n")
+          ("n" "notes" entry
+           (file+headline "~/org/inbox.org" "notes")
+           "* %?\n  %i\n %U")
+          ("a" "Amusement" entry
+           (file+headline "~/org/inbox.org" "Amusement")
+           "* TODO [#C] %?\n  %i\n %U")
+          ("e" "Excerpt" entry
+           (file+headline "~/org/inbox.org" "Excerpt")
+           "* %?"))))
+  #+end_src
+  设置~org-capture~，用于随时记录笔记；~gtd.org~管理任务，~inbox.org~管理收集的信息
+
+  #+begin_src emacs-lisp
+    (defvar gaeric-static-file-dir "")
+    (defun gaeric-static-blog-change-link (path desc backend)
+      "change link for static file"
+      (if (eq backend 'html)
+          (unless desc
+            (message "abspath is %s" (expand-file-name path))
+            (if (file-exists-p path)
+                (let* ((file-abs (expand-file-name path))
+                       (file-md5 (substring-no-properties (md5 file-abs) 0 8))
+                       (file-new (concat (file-name-base file-abs) "_" file-md5 "." (file-name-extension file-abs))))
+                  (if (file-exists-p (concat gaeric-static-file-dir file-new))
+                      (message "Skipping unmodified file %s" file-abs)
+                    (copy-file file-abs file-new))
+                  (format "<img src=\"%s\" alt=\"%s\"/>" file-new file-new))))))
+
+
+  #+end_src
+  转换~blog~系统中的图片链接，目前缺少org-download相关设置
+
+  #+begin_src emacs-lisp
+    (with-eval-after-load 'org-agenda
+      (setq org-agenda-custom-commands
+            '(("w" . "任务安排")
+              ("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
+              ("wb" "重要且不紧急的任务" tags-todo "-Weekly-Monthly-Daily+PRIORITY=\"B\"")
+              ("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
+              ;;("p" . "项目安排")
+              ("W" "Weekly Review")))
+
+      (setq org-agenda-files
+            (quote ("~/org/inbox.org" "~/org/gtd.org"))))
+  #+end_src
+  设置~org-agenda~，将~inbox.org~和~gtd.org~加入~org-agenda~文件列表中
+  
+* 备注
+** GTD流程
+   一项任务的状态，不会直接在org文件中修改，在是在org-agenda中进行调整
+   
+   任务的待办状态为~TODO~，进行中状态为~STARTED~，挂起状态为~SUSPEND~，完成状态为~DONE~，放弃状态为~CANCELLED~
+   
+   一项新添加的任务，其状态即为~TODO~，在进行处理时，使用~clock-in~将其状态变为~STARTED~，记录时间，并开始计时；
+   
+   当某个阶段完成需要暂停或转交至他人工作时，使用~clock-out~将其状态变为~SUSPEND~，进行记录，并结束计时；
+** 配置org-download
+** org-mode博客的静态文件上传及更新（可用七牛云）
+   配合~gaeric-static-blog-change-link~
+
+   注意如下函数
+   ;; /usr/share/emacs/28.0.50/lisp/org/ox-html.el
+   ;; 3117:      ((org-export-custom-protocol-maybe link desc 'html))
+** org-clock和todo status关联
+   列明工作流
