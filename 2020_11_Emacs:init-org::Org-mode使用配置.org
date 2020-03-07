@@ -159,5 +159,3 @@
    注意如下函数
    ;; /usr/share/emacs/28.0.50/lisp/org/ox-html.el
    ;; 3117:      ((org-export-custom-protocol-maybe link desc 'html))
-** org-clock和todo status关联
-   列明工作流
