@@ -48,8 +48,9 @@
     (setq-default indent-tabs-mode nil)    ;不使用Tab键插入\t
     (setq-default cursor-type 'bar)        ;设置默认的光标样式
     (setq make-backup-files nil)           ;默认不进行备份
+    (global-auto-revert-mode t)            ;文件修改后自动载入
+    (column-number-mode 1)                 ;在modeline上展示行列位置（行默认开启）
   #+end_src
-
 
   有时候交互式命令需要确认输入yes或no，对其使用y或者n代替简化需要确认时的输入：
   #+begin_src emacs-lisp
