@@ -88,7 +88,7 @@
     (setq org-clock-in-switch-to-state "STARTED")
     (setq org-clock-out-switch-to-state "SUSPEND")
   #+end_src
-  这里的设置遵循个人的GTD流程，见[[file:2020_11_Emacs:init-org::Org-mode使用配置.org::*GTD流程][GTD流程]] 
+  这里的设置遵循个人的GTD流程
   
 
   #+begin_src emacs-lisp
