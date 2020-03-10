@@ -1,0 +1,82 @@
+#+title: Emacs-ivy: Ivy使用与配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  ~ivy~的仓库名为~swiper~，其中包含~swiper~、~ivy~和~counsel~三个部分；
+
+  ~ivy~是一个交互式的完成框架，可以用于诸如~M-x~执行命令，~find-file~查找文件等命令中
+  
+  ~swiper~是~ivy~增强的类似于~isearch~的工具
+  
+  ~counsel~则是~ivy~增强的部分~emacs~的命令
+  
+  目前使用ivy完成交互式的命令搜索和补全，快速选取和操作文件和文件内容，完成文本内容查找和替换（重构）
+* 配置说明
+  在使用~ivy~之前，首先安装~smex~、~flx~及~wgrep~
+  
+  - flx :: ~flx~是Emacs的模糊匹配工具，其对~ivy~的具体作用未知
+  - smex :: ~smex~增强Emacs的~M-x~命令，用于~counsel-M-x~
+  - wgrep :: ~wgrep~允许我们修改grep结果生成的buffer,并将这些修改提交至文件；配合~counsel-*~系列命令可以快速完成重构
+    
+  
+  #+begin_src emacs-lisp
+    ;; smex默认按历史排列使用的命令
+    (require 'smex)
+  #+end_src
+  ~smex~实际是~ivy~的可选依赖，加入了~smex~后，~counsel-M-x~以命令历史排序命令，而非使用频率
+  
+  #+begin_src emacs-lisp
+    ;; turn on ivy
+    (add-hook 'after-init-hook 'ivy-mode)
+  #+end_src
+  ~Emacs~初始化完成后再加载~ivy~模式
+  
+  #+begin_src emacs-lisp
+    ;; for paste
+    (global-set-key (kbd "M-y") 'counsel-yank-pop)
+  #+end_src
+  使用~M-y~调用~counsel~扩展的粘贴，提供~kill-ring~列表供选择
+
+  #+begin_src emacs-lisp
+    (setq-default
+       ;; ivy-wrap t
+       ivy-use-virtual-buffers t
+       ivy-virtual-abbreviate 'fullpath
+       ivy-count-format "(%d/%d) "
+       ivy-magic-tilde nil
+       ivy-use-selectable-prompt t
+       smex-save-file (expand-file-name ".smex-items" user-emacs-directory)
+       counsel-mode-override-describe-bindings t)
+  #+end_src
+  - ivy-use-virtual-buffers :: 使用~ivy-switch-buffer~时，加载~recentf file~和~bookmarks~
+  - ivy-virtual-abbreviate :: 使用文件的绝对路径，而不是文件名
+  - ivy-count-format :: ~ivy~所有的匹配项的显示方式
+  - ivy-use-selectable-prompt :: 尚未明确
+  - ivy-magic-tilde :: 使用~~/~进入~home~目录，而非~~~
+  - smex-save-file :: 配置~smex~记录文件的存放位置
+  - counsel-mode-override-describe-bindings :: 用~counsel-descbinds~覆盖~describe-bindings~
+    
+  #+begin_src emacs-lisp
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-s") 'swiper)
+  #+end_src
+  全局快捷键，主要用于在要evil normal模式下使用
+  
+  #+begin_src emacs-lisp
+    (define-key ivy-minibuffer-map (kbd "M-j") 'ivy-next-line)
+    (define-key ivy-minibuffer-map (kbd "M-k") 'ivy-previous-line)
+  #+end_src
+  
+  使用~M-j~和~M-k~上下选择，原~M-j~为~ivy-yank-word~，个人使用较少
+  
+  #+begin_src emacs-lisp
+    (diminish 'ivy-mode)
+  #+end_src
+  使用~diminish~，去除modeline上的文字
+* 备注
+** TODO 补充flx的作用
+** TODO 加入keyfreq后，列出常用命令
+** TODO ivy-use-selectable-prompt的具体作用
