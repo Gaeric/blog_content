@@ -20,8 +20,7 @@
   - flx :: ~flx~是Emacs的模糊匹配工具，其对~ivy~的具体作用未知
   - smex :: ~smex~增强Emacs的~M-x~命令，用于~counsel-M-x~
   - wgrep :: ~wgrep~允许我们修改grep结果生成的buffer,并将这些修改提交至文件；配合~counsel-*~系列命令可以快速完成重构
-    
-  
+
   #+begin_src emacs-lisp
     ;; smex默认按历史排列使用的命令
     (require 'smex)
@@ -80,3 +79,7 @@
 ** TODO 补充flx的作用
 ** TODO 加入keyfreq后，列出常用命令
 ** TODO ivy-use-selectable-prompt的具体作用
+** TODO 补充ivy的使用技巧
+   1. 快速查找项目文件
+   2. 配置wgrep完成重构
+   3. ivy补全时一些常用技巧
