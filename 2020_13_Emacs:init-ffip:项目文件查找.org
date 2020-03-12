@@ -1,0 +1,43 @@
+#+title: Emacs-ffip: find-file-in-project使用与配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  ~find-file-in-project~用于快速查找项目中的文件，或者浏览~diff~内容；
+  
+  对于受~git~控制的项目，查找项目中的文件直接使用~counsel-git~，搜索项目中文中的内容，可直接使用~counsel-git-grep~；
+
+  对于不受~git~控制的项目，则使用~find-file-in-project~查找文件
+* 配置说明 
+  #+begin_src emacs-lisp
+    (defun ffip-diff-mode-hook-setup ()
+      (evil-local-set-key 'normal "p" 'diff-hunk-prev)
+      (evil-local-set-key 'normal "n" 'diff-hunk-next)
+      (evil-local-set-key 'normal "P" 'diff-file-prev)
+      (evil-local-set-key 'normal "N" 'diff-file-next)
+      (evil-local-set-key 'normal (kbd "RET") 'ffip-diff-find-file)
+      (evil-local-set-key 'normal "o" 'ffip-diff-find-file))
+    (add-hook 'ffip-diff-mode-hook 'ffip-diff-mode-hook-setup)
+  #+end_src
+  上述配置为对应~evil-mode~时使用~ffip-show-diff~配置的快捷键
+
+  #+begin_src emacs-lisp
+    ;; use fd (rust) replace GNU Find
+    (setq ffip-use-rust-fd t)
+  #+end_src
+  使用~fd~替代~GNU Find~进行搜索
+
+  #+begin_src emacs-lisp
+    ;; Only for project
+    (gaeric-comma-leader-def
+      "ff" 'find-file-in-project
+      "fp" 'find-file-in-project-at-point
+      "fs" 'find-file-in-project-by-selected ;类比于swiper-thing-at-point
+      )
+    ;; C-h i g (ivy) Enter for more key-binding tips.
+  #+end_src
+  在使用~ivy~的情况下，~find-file-in-project~可以拥有与~~swiper~等相似的交互体验，即时查找，并展现搜索结果；但在使用~TRAMP Mode~时性能不佳，注意不要在此种模式下使用它；
+  
+  ~find-file-in-project-at-point~和~find-file-in-project-by-selected~均在输入完成后进行查找，可用于~TRAMP Mode~
