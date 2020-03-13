@@ -79,7 +79,17 @@
 ** TODO 补充flx的作用
 ** TODO 加入keyfreq后，列出常用命令
 ** TODO ivy-use-selectable-prompt的具体作用
-** TODO 补充ivy的使用技巧
-   1. 快速查找项目文件
-   2. 配置wgrep完成重构
-   3. ivy补全时一些常用技巧
+** TODO 补充ivy的使用技巧[1/1]
+*** DONE 1. 快速查找项目文件
+    见init-ffip配置说明
+*** 2. ivy-occur使用方法
+    ~ivy-occur~可将swiper或counsel搜索到的结果保存至一个单独的BUFFER中，此时按~jkhl~键即可上下左右移动
+       
+    预设条件下，上下左右移动时，不会操作其它窗口，按下~f~键，可以查看源文件中对应的内容；
+       
+    按下~c~键可以切换~ivy-calling~模式，当~ivy-calling~打开时，上下移动时切换当前光标所在的条目时，将打开源文件并定位到此条目，等同于每次移动后都按下~f~；
+       
+    注意直接切换ivy-calling即可，使用*-error-no-select(快捷键n/p)在单文件内与多文件内的跳转方法不一致；
+
+*** 3. 配合wgrep完成重构
+*** 4. ivy补全时一些常用技巧
