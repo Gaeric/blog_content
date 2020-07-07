@@ -4,9 +4,10 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-将org文件转化为博客是我期待以久的事情，之前看过使用Hexo此类的博客系统，但是一直不想搭，最近学完了整套Flask，觉得用Flask框架配合org导出(org-export)的html文件搭一个静态博客应当是一件非常容易的事情，于是这个博客系统的方案诞生了。
+* 简介
+  将org文件转化为博客是我期待以久的事情，之前看过使用Hexo此类的博客系统，但是一直不想搭，最近学完了整套Flask，觉得用Flask框架配合org导出(org-export)的html文件搭一个静态博客应当是一件非常容易的事情，于是这个博客系统的方案诞生了。
 
-博客地址为：http://lantianzero.club
+  博客地址为：http://lantianzero.club
 * 博客系统方案
   这个方案是因Emacs的org-mode而生的，org-mode和Emacs的配置是必须的；另外，它还依赖于nginx和Python及其安装包[包括Flask、uwsgi及supervisor等]
 
@@ -126,5 +127,3 @@
    6. uwsgi及supervisor将在其它博客中说明，完成后于此处增加链接
 * 图片上传及源码
   由于目前环境中暂未涉及图片及其它二进制文件，所以博客内容中没有考虑二进制文件
-
-  源码尚未整理完成，整理完成后上传个人github
