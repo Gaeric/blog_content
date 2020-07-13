@@ -280,4 +280,5 @@
    #+BEGIN_SRC shell
    chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
    #+END_SRC
-   
+** Fcitx5无法与sway兼容
+   @see: https://github.com/fcitx/fcitx5/issues/39
