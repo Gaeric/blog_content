@@ -1,28 +1,29 @@
 #+title:Arch手记
 #+author: Gaeric
+* 简介
+  记录Arch安装和使用过程中的随笔，思路凌乱，但随时更新
 * 基本流程
 ** 1. 安装步骤
-   遵循wiki上面的步骤，可顺利安装，本篇主要为Archlinux配置说明
+   遵循wiki上面的步骤，可顺利安装，本篇主要记录安装过程过程中一些问题
+
    Arch wiki：https://wiki.archlinux.org/index.php/Installation_guide
 *** 系统基础
-    遵循wiki上面的步骤，可顺利安装
-    *Please read Archwiki*
-    
-    注意理解fdisk分区命令中，对磁盘细节的划分
+    遵循wiki上面的步骤，可顺利安装（*Please read Archwiki*）
+
 **** 启用网卡
      archlinux安装后无法联网解决方法
     
-     ip link '查看网卡名称，如enp4s0或eth0
-     ip link set enp4s0 up '启动网卡
-     dhcpcd enp4s0 '自动配置有线网络
-     systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
-     完成！以后系统开机自动联网！
+     1. ip link '查看网卡名称，如enp4s0或eth0
+     2. ip link set enp4s0 up '启动网卡
+     3. dhcpcd enp4s0 '自动配置有线网络
+     4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
+     5. 完成！以后系统开机自动联网！
 **** 安装引导
      #+BEGIN_EXAMPLE
      # grub-install --target=i386-pc /dev/sdX
      #+END_EXAMPLE
      where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
-*** 图形界面
+*** 使用i3窗口管理器
     #+BEGIN_SRC shell
       # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
       pacman -S xorg xorg-xinit
@@ -37,12 +38,9 @@
     n：新建分区
     w：写入
 *** 中文化
-    https://wiki.archlinux.org/index.php/Localization/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
-    
-    参见: *Archwiki*
+    具体参见：https://wiki.archlinux.org/index.php/Localization/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
 ** 2. 安装基本的Xorg及Xorg-xinit
    Arch wiki：https://wiki.archlinux.org/index.php/Xorg
-   #+NAME:123
    #+BEGIN_SRC shell
      pacman -S xorg xorg-xinit
    #+END_SRC
@@ -56,7 +54,7 @@
     #+BEGIN_SRC shell
     wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
 
-      7za e <archive name>
+    7za e <archive name>
     #+END_SRC
 * 安装Arch双系统
 ** 配置Grub引导
@@ -126,31 +124,31 @@
    # 暂时不考虑中文
    pacman -S adobe-source-code-pro-fonts
    #+END_EXAMPLE
-   然后，终端模拟器是必须的，在这里我选了 ~alacritty~
+   然后，终端模拟器是必须的，在这里我使用sway默认的~alacritty~，其它可以选择的终端管理器可见于其wiki
    #+BEGIN_EXAMPLE
-   # 没有选择 urxvt，因为我想试用 rust，之前在 alacritty 的项目
-   # 里面发现了关于 wayland 的 issue，看它的支持实际应该很不错
-   # 当然了，没有测试，如果不放心还是选 urxvt
+   
    pacman -S alacritty
    #+END_EXAMPLE
    *切记要更改sway的配置，将终端模拟器改为alacritty*
    
-   然后可以选择安装 ~dmenu~ 和 ~zsh~
+   wofi是一个替代rofi的工具，做为应用启动器
+
+   安装 ~wofi~ 和 ~zsh~
+   
+   要用wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
    #+BEGIN_EXAMPLE
-   pacman -S dmenu zsh
+     set $menu wofi_path | wofi --show run | xargs swaymsg exec --
    #+END_EXAMPLE
    由于编译安装 ~wlroots~ ~sway~ 的原因，已经装好 ~python3~ 和 ~rust~
    可以开心的玩耍了
 ** 后记
    这只是最最基础的环境，尚未测试浏览器和编辑器的功能，没有设置壁纸和其它特效
    
-   然后存在一个问题： ~dmenu~ 的启动菜单在屏幕之外…
    改用rofi可以完美解决dmenu的问题，而且可以进行相应的说明
 
    基础的命令环境应该没有什么问题：  ~exa~ + ~bat~ + ~ripgrep~ 等等
    
    参考链接：https://drewdevault.com/2019/03/11/Sway-1.0-released.html
-   
 *** 配置时间
     #+BEGIN_EXAMPLE
      # 将系统时间写入BIOS（--systohc)
