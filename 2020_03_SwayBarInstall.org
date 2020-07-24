@@ -4,22 +4,23 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-** swaybar的安装过程
-   今天闲来无事，看到了waybar,它是一个swayland的状态栏工具，尝试使用，安装过程记录如下
+* 简介
+  今天闲来无事，看到了waybar,它是一个swayland的状态栏工具，尝试使用，安装过程记录如下
+* swaybar的安装过程
    
-   阅读[[https://github.com/Alexays/Waybar/wiki/Installation#arch-linux][wiki]]，发现首先需要安装~otf-font-awesome~，搜索~ArchLinux~的软件仓库，发现这个包存在于公共仓库中，直接使用~pacman~安装即可
+  阅读[[https://github.com/Alexays/Waybar/wiki/Installation#arch-linux][wiki]]，发现首先需要安装~otf-font-awesome~，搜索~ArchLinux~的软件仓库，发现这个包存在于公共仓库中，直接使用~pacman~安装即可
    
-   于是：
-   #+begin_example
-     pacman -Syu
-     pacman -S otf-font-awesome waybar
-   #+end_example
+  于是：
+  #+begin_example
+    pacman -Syu
+    pacman -S otf-font-awesome waybar
+  #+end_example
    
-   然后将bar中的内容更改为
-   #+begin_example
-     bar {
-         swaybar_command waybar
-     }
-   #+end_example
+  然后将bar中的内容更改为
+  #+begin_example
+    bar {
+        swaybar_command waybar
+    }
+  #+end_example
   
-   [2020-02-12 Wed 10:51]
+  [2020-02-12 Wed 10:51]
