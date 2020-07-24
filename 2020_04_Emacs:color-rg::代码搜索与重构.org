@@ -4,11 +4,8 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-无论如写什么，都需要对某些内容重命名，于是今天试试代码搜索与重构工具。
-
-试用了一下~color-rg~，似乎还有点小问题，先提个issue，看看作者怎么说；
-
-但是这个功能很重要，现在就需要使用，于是我选择先使用~wgrep~
+* 简介
+  无论是写文本还是写代码，都需要对某些内容重命名，于是尝试代码搜索与重构工具，以提升搜索和替换的效率。
 * wgrep的安装
   由于我还是想试用~color-rg~，而且我没有使用靠谱的包管理器，所以这一次采用~git submodule~的方式安装~wgrep~
 
