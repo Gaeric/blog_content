@@ -4,6 +4,8 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
+* 简介
+  本篇是学习flask时的第一篇笔记，主要记录了web相关的一些基础知识
 * url概念
   ~URL~是~Uniform Resource Locator~的简称，即统一资源定位符；
   
