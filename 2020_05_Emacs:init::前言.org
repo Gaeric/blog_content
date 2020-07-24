@@ -4,7 +4,7 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-* 前言
+* 简介
   我是在大学时接触Emacs的，那个时候教我们C语言的老师鼓励我们使用Linux，于是我踏入了Linux的领域之中；
 
   之后在解决一些简单的使用问题时，发现了Emacs这个软件，从此开始了Emacs的使用历程；
