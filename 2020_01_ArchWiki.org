@@ -1,7 +1,7 @@
 #+title:Arch拾遗
 #+author: Gaeric
 * 简介
-  Arch安装和使用过程中的随笔，但随时更新
+  Arch安装和使用过程中的随笔，随时更新
 * Note
 ** 启用网卡
    archlinux安装后无法联网解决方法
