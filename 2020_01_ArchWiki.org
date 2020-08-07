@@ -1,63 +1,40 @@
-#+title:Arch手记
+#+title:Arch拾遗
 #+author: Gaeric
 * 简介
-  记录Arch安装和使用过程中的随笔，思路凌乱，但随时更新
-* 基本流程
-** 1. 安装步骤
-   遵循wiki上面的步骤，可顺利安装，本篇主要记录安装过程过程中一些问题
-
-   Arch wiki：https://wiki.archlinux.org/index.php/Installation_guide
-*** 系统基础
-    遵循wiki上面的步骤，可顺利安装（*Please read Archwiki*）
-
-**** 启用网卡
-     archlinux安装后无法联网解决方法
+  Arch安装和使用过程中的随笔，但随时更新
+* Note
+** 启用网卡
+   archlinux安装后无法联网解决方法
     
-     1. ip link '查看网卡名称，如enp4s0或eth0
-     2. ip link set enp4s0 up '启动网卡
-     3. dhcpcd enp4s0 '自动配置有线网络
-     4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
-     5. 完成！以后系统开机自动联网！
-**** 安装引导
-     #+BEGIN_EXAMPLE
-     # grub-install --target=i386-pc /dev/sdX
-     #+END_EXAMPLE
-     where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
-*** 使用i3窗口管理器
-    #+BEGIN_SRC shell
-      # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
-      pacman -S xorg xorg-xinit
-      # 然后安装i3程序包组
-      # 为了正常使用，往往需要安装一个虚拟终端
-      pacman -S rxvt-unicode
-      # 程序组列表：https://www.archlinux.org/groups/
-      pacman -S i3
-    #+END_SRC
-*** 命令：fdisk
-    fdisk 进入交互界面：
-    n：新建分区
-    w：写入
-*** 中文化
-    具体参见：https://wiki.archlinux.org/index.php/Localization/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
-** 2. 安装基本的Xorg及Xorg-xinit
-   Arch wiki：https://wiki.archlinux.org/index.php/Xorg
+   1. ip link '查看网卡名称，如enp4s0或eth0
+   2. ip link set enp4s0 up '启动网卡
+   3. dhcpcd enp4s0 '自动配置有线网络
+   4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
+   5. 完成！以后系统开机自动联网！
+** 安装引导
+   #+BEGIN_EXAMPLE
+   # grub-install --target=i386-pc /dev/sdX
+   #+END_EXAMPLE
+   where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
+** 如何安装i3窗口管理器
    #+BEGIN_SRC shell
+     # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
      pacman -S xorg xorg-xinit
+     # 然后安装i3程序包组
+     # 为了正常使用，往往需要安装一个虚拟终端
+     pacman -S rxvt-unicode
+     # 程序组列表：https://www.archlinux.org/groups/
+     pacman -S i3
    #+END_SRC
-** 3. 安装并配置i3
-   Arch wiki：https://wiki.archlinux.org/index.php/I3
-** 4. 中文化设置
-   Arch wiki：https://wiki.archlinux.org/index.php/Localization
-***  安装小小(yong)输入法
-    - 前置
-      yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
-    #+BEGIN_SRC shell
-    wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
+** yong输入法安装
+   - 前置
+     yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
+   #+BEGIN_SRC shell
+   wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
 
-    7za e <archive name>
-    #+END_SRC
-* 安装Arch双系统
-** 配置Grub引导
+   7za e <archive name>
+   #+END_SRC
+** Arch+Win双系统配置Grub引导
    加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
    然后运行如下命令，更新 ~/boot/grub/custom.cfg~
    #+BEGIN_EXAMPLE
@@ -82,13 +59,8 @@
    }
    ### END /etc/grub.d/30_os-prober ###
    #+END_EXAMPLE
-* Arch安装配置Sway（基础环境）
-  ~Sway~ 是一个基于 ~wayland~ 的窗口管理软件，它兼容 ~i3~ 的配置，可以看成 ~i3~ 的 ~wayland~ 实现
-  尝试新技术，配置 ~Arch+Sway~ 的基础桌面环境
-  首先安装了基本的 ~Arch~ ，并且安装了完整的 ~base-devel~ 和 ~git~
-  
-  ~Arch~ 的官方仓库提供了完整的 ~sway~ ，但是它基于老旧的 ~wlc~ 和 ~sway~ ，所以我选择了AUR仓库中的 ~wlroots-git~ 和 ~sway-git~
-** 从 ~AUR~ 安装 ~wlroots-git~ 和 ~sway-git~
+** 从AUR安装软件
+   示例：~wlroots-git~ 和 ~sway-git~
    首先找到 ~Arch~ 提供的 ~AUR~ 仓库
    分别为：
    https://aur.archlinux.org/sway-git.git
@@ -100,7 +72,7 @@
    git clone https://aur.archlinux.org/wlroots-git.git /tmp/wlroots
    #+END_EXAMPLE
    然后可以看到相应目录下的 ~PKGBUILD~
-   阅读发现没有什么难处，检查依赖并下载，然后安装
+   检查依赖并下载，然后安装
    
    直接 ~makepkg -s PKGBUILD~ 
    这一步将会使用 ~pacman~ 自动解决依赖，并且自动编译成相应的软件包
@@ -110,13 +82,7 @@
    #+BEGIN_EXAMPLE
    pacman -U wlroots-git.tar.gz
    #+END_EXAMPLE
-
-   其中可能有很多依赖需要解决，不过问题不大
-   我为了省事，直接安装了提供的包 ~sway~
-   然后单独卸载了 ~sway~ 和 ~wlc~
-   然后装 ~wlroots-git~
-   最后装了 ~sway~ （依赖于 ~wlroots-git~ 提供的库）
-** 安装tty和其它配置
+** sway处理乱码并配置终端模拟器
    此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
    
    进去之后发现乱码，安装字体解决
@@ -126,65 +92,37 @@
    #+END_EXAMPLE
    然后，终端模拟器是必须的，在这里我使用sway默认的~alacritty~，其它可以选择的终端管理器可见于其wiki
    #+BEGIN_EXAMPLE
-   
    pacman -S alacritty
    #+END_EXAMPLE
    *切记要更改sway的配置，将终端模拟器改为alacritty*
-   
+** sway下的dmenu替代工具
    wofi是一个替代rofi的工具，做为应用启动器
 
-   安装 ~wofi~ 和 ~zsh~
-   
-   要用wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
+   要使wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
    #+BEGIN_EXAMPLE
      set $menu wofi_path | wofi --show run | xargs swaymsg exec --
    #+END_EXAMPLE
-   由于编译安装 ~wlroots~ ~sway~ 的原因，已经装好 ~python3~ 和 ~rust~
-   可以开心的玩耍了
-** 后记
-   这只是最最基础的环境，尚未测试浏览器和编辑器的功能，没有设置壁纸和其它特效
-   
-   改用rofi可以完美解决dmenu的问题，而且可以进行相应的说明
+** 系统时间不正确需要重新配置
+   #+BEGIN_EXAMPLE
+    # 将系统时间写入BIOS（--systohc)
+    hwclock --systohc --localtime
+   #+end_EXAMPLE
+** 系统扬声器无输出
+   使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
 
-   基础的命令环境应该没有什么问题：  ~exa~ + ~bat~ + ~ripgrep~ 等等
-   
-   参考链接：https://drewdevault.com/2019/03/11/Sway-1.0-released.html
-*** 配置时间
-    #+BEGIN_EXAMPLE
-     # 将系统时间写入BIOS（--systohc)
-     hwclock --systohc --localtime
-    #+end_EXAMPLE
-*** 声音
-    使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
-    
-    原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
-    #+BEGIN_EXAMPLE
-      pcm.!default {
-                   type hw
-                   card 1
-      }
+   原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
+   #+BEGIN_EXAMPLE
+     pcm.!default {
+                  type hw
+                  card 1
+     }
 
-      ctl.!default {
-                   type hw
-                   card 0
-      }
-    #+end_EXAMPLE
-* 基本开发环境搭建
-  我们的主要目的是开发 ~Python~ 和 ~Rust~
-  其次是学习 ~Arch~ 和其它桌面环境
-  在配置整个开发环境之前，我们需要先将整个环境变得尽可能好用
-
-  首先卸载 ~dmenu~ ，换用 ~rofi~ ，并对其进行配置
-  #+BEGIN_EXAMPLE
-  set $menu rofi_path | rofi -show run | xargs swaymsg exec
-  #+END_EXAMPLE	
-
-  安装 ~Emacs~ ~Firefox~ 
-  
-  配置 ~Firefox~ 插件 ~Surfingkeys~
-
-  如此基本的工作环境已经搭建完成
-** 安装 ~MySQL~ 数据库
+     ctl.!default {
+                  type hw
+                  card 0
+     }
+   #+end_EXAMPLE
+** Arch安装MySQL数据库
    在 ~Arch/Linux~ 中，安装 ~Mariadb
    #+BEGIN_EXAMPLE
    直接安装相应的软件包
@@ -215,9 +153,6 @@
    character-set-server = utf8
    collation-server = utf8_general_ci
    #+END_EXAMPLE
-* 问题汇总
-  在整个Arch的安装过程中，我遇到了诸多问题
-  以下一一记录
 ** 安装过程中无法连接wifi
    #+BEGIN_SRC shell
      wifi-menu
@@ -263,17 +198,15 @@
    解决方法为：手动指定 ssh 参数 -o 'IPQoS=lowdelay throughput'
    
    参考链接：https://lvii.github.io/system/2018-08-31-openssh-7.8p1-broken-pipe-under-vmware-vm-with-nat-port-forward/
-** 无声音与麦克风
-   archlinux的linux内核基本适配了相当的硬件，但是可能选择错了主要设备
-** ~git~下载速度过慢
-   善用~proxy~
+** git下载速度过慢
+   使用~proxy~
    #+begin_example
    # 设置代理
    git config --global http.proxy http://127.0.0.1:1080
    # 取消代理
    git config --global unset http.proxy
    #+end_example
-** ~Chromium~设置~lantern~代理
+** Chromium设置代理
    在不需要任何设置的条件下，可以按如下方式设置代理
    #+BEGIN_SRC shell
    chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
