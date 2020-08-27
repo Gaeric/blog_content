@@ -1,0 +1,175 @@
+#+title: FastApi与socket.io通信
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  我需要使fastapi编写的server能与web的socket.io通信，在网上基本找不到完整的参考资料，所以将自己探索做出来的demo放在这里，供自己查阅或其它人参考；如果发现本篇所述有任何问题，欢迎到我的github提issue。
+  
+  server使用fastapi做为框架，配合python-socketio库完成；web使用vue做为框架，使用socket.io库与server进行通信。
+* web
+  使用vue/cli创建一个新的项目，并安装socket.io-client库，在~src/views/~目录下添加自己的单文件vue组件，我添加的文件为GameTable.vue，以下是其代码：
+  #+begin_src web
+    <template>
+        <div>
+            <h1>This is the GameTable</h1>
+            <div>{{ message }}</div>
+        </div>
+    </template>
+
+    <script>
+     import * as io from 'socket.io-client';
+     export default {
+         name: "GameTable",
+         data() {
+             return {
+                 message: ""
+             }
+         },
+         mounted() {
+             this.socket = io.connect("http://localhost:8000");
+
+             this.socket.emit('Client', "Hello, Server!");
+             this.socket.on("Server", args => {
+                 this.message = args.data;
+                 console.log("Server: " + this.message)
+             });
+         }
+     }
+    </script>
+  #+end_src
+
+  文件结构非常简单，重点在于下面的socket.io代码段：这里在mounted时使用socket.io创建连接，然后向Server发送一条~Hello, Server!~；之后便开始监听服务端发送的~Server~事件，并获取其~data~字段内容，将此内容赋给message展示，并在控制台打印输出
+
+  注意还需要在src/router/index.js文件目录下添加路由，将下列语句依区块加入到index.js文件中
+  #+begin_src js
+    import GameTable from '../views/GameTable.vue'
+
+    {
+        path: "/GameTable",
+        name: 'GameTable',
+        component: GameTable
+    }
+  #+end_src
+
+  完成后的index.js文件如下:
+  #+begin_src js
+    import Vue from 'vue'
+    import VueRouter from 'vue-router'
+    import Home from '../views/Home.vue'
+    import GameTable from '../views/GameTable.vue'
+
+    Vue.use(VueRouter)
+
+      const routes = [
+      {
+        path: '/',
+        name: 'Home',
+        component: Home
+      },
+      {
+        path: '/about',
+        name: 'About',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+      },
+      {
+          path: "/GameTable",
+          name: 'GameTable',
+          component: GameTable
+      }
+
+    ]
+
+    const router = new VueRouter({
+      mode: 'history',
+      base: process.env.BASE_URL,
+      routes
+    })
+
+    export default router
+  #+end_src
+
+  为了便于访问，我将GameTable的链接加入到了首页，修改src/App.vue文件，修改后的内容如下：
+  #+begin_src web
+    <template>
+      <div id="app">
+        <div id="nav">
+          <router-link to="/">Home</router-link> |
+          <!--       // change -->
+          <router-link to="/about">About</router-link> | 
+          <router-link to="/GameTable">GameTable</router-link>
+          <!--       // change -->
+        </div>
+        <router-view/>
+      </div>
+    </template>
+
+    <style>
+    #app {
+      font-family: Avenir, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #nav {
+      padding: 30px;
+    }
+
+    #nav a {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    #nav a.router-link-exact-active {
+      color: #42b983;
+    }
+    </style>
+  #+end_src
+* Server
+  后端的编写参考了python-socketio代码仓库中的example下server端asgi部分[[https://github.com/miguelgrinberg/python-socketio/blob/master/examples/server/asgi/app.py][示例]]，同时参考fastapi使用socketio的[[https://github.com/tiangolo/fastapi/issues/129][issue]]
+  
+  完整的后端代码如下：
+  #+begin_src python
+    import socketio
+    from fastapi import FastAPI
+
+    app = FastAPI()
+    sio = socketio.AsyncServer(async_mode='asgi',
+                               cors_allowed_origins=['http://localhost:8080'])
+    sio_app = socketio.ASGIApp(sio, other_asgi_app=app)
+    background_task_started = False
+
+
+    async def background_task():
+        '''Example of how to send server generated events to clients.'''
+        count = 0
+        while True:
+            await sio.sleep(10)
+            count += 1
+            await sio.emit('Server', {'data': "Hello, Client"})
+
+
+    @sio.on("connect")
+    async def test_connect(sid, environ):
+        print(f'{sid} connected!')
+        global background_task_started
+        if not background_task_started:
+            sio.start_background_task(background_task)
+            background_task_started = True
+        await sio.emit("Server", {'data': "Connect",
+                                  'count': 0})
+
+    app.mount('/', sio_app)
+  #+end_src
+
+  注意其中socketio.AsyncServer中的关键字参数~cors_allowed_origins~，这是为了防止本机调试时浏览器CORS错误；socketio使用了python-engineio，应在此指定cors_allowed_origins参数，详见：[[https://python-engineio.readthedocs.io/en/latest/server.html#sanic][官方文档]]
+* Note
+  1. 示例中没有为vue添加CORS设置，主要是由于在linux上重新编写demo时，未添加vue CORS设置demo也能如预期工作，故未添加，如果出现CORS错误，可参考：[[https://blog.csdn.net/don2ccc/article/details/100751477][vue跳过跨域检查]]
+  2. 不需要在fastapi中再次添加CORS设置，因为demo中的跨域访问即发生在socketio与socket.io之间，如果在fastapi中添加CORS设置，反倒会导致~multiple 'Access-Control-Allow-Origin'~问题
+  
