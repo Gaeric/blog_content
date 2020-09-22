@@ -1,0 +1,53 @@
+#+title: FastApi与python-socketio设置CROS
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  在上一篇博客中，提及了FastApi中使用python-socketio时，如果为FastAPI设置CROS，将引发~multiple 'Access-Control-Allow-Origin'~问题；但是在实际应用中，程序不可能只通过socketio进行通迅，在访问fastapi提供的一些api时，同样将出现CROS错误，本文说明如果兼顾FastAPI和python-socketio的CROS限制，使前端应用能正常访问Server
+* 解决方案
+  根据[[https://github.com/miguelgrinberg/python-socketio/issues/205][python-socketio]]上的issue，sanic可以将~engineio.AsyncServer(async_mode='sanic', cors_allowed_origins=[])~中的cors_allowed_origins列表置为空，并在sanic中开启CORS支持：
+  #+begin_src python
+  app.config['CORS_AUTOMATIC_OPTIONS'] = True
+  app.config['CORS_SUPPORTS_CREDENTIALS'] = True
+  #+end_src
+  
+  将上述方法调整，并适用于fastapi，完整示例如下：
+  #+begin_src python
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+    import socketio
+
+    app = FastAPI()
+    sio = socketio.AsyncServer(async_mode='asgi',
+                               cors_allowed_origins=[])
+    sio_app = socketio.ASGIApp(sio, other_asgi_app=app)
+    app.mount('/', sio_app)
+
+    origins = [
+        "http://localhost",
+        "http://localhost:8080",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @sio.on("connect")
+    async def test_connect(sid, environ):
+        print(f'{sid} connected!')
+        await sio.emit("Server", {'data': "Connect",
+                                  'count': 0})
+
+
+    @app.get("/")
+    async def main():
+        return {"message": "Hello World"}
+
+  #+end_src
+  
