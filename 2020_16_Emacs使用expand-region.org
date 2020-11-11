@@ -1,0 +1,17 @@
+#+title: 使用expand-region快速选择
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  在文本编辑中，选择并复制一段文本是极为常见的操作；在Evil环境中，对于普通的字词或是段落，直接使用y + vim对象就很省事，但是实际需要选择的区域往往比较复杂，难以一次性计算，先v进入visual移动光标再复制文本的效率总是很低下，因为有很多多余的计算需要自己处理；今天尝试了expand-region插件，感觉选择区域的体验有了极大的提升
+* 设置
+  安装expand-region，这一步看个人喜好，可以~package-install~，~git submodule clone~等等；
+
+  在evil中的配置只有一行：~(define-key evil-visual-state-map (kbd "v") 'er/expand-region)~，在visual模式下，再次按v键，触发er/expand-region扩展选择区域 
+
+  没有心智负担，只要vvvvv到合适的区域并选择就行了！
+
+  Enjoy!
+
