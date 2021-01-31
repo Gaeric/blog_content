@@ -1,0 +1,49 @@
+#+title: IntroToAlgo-2.1
+* 简介
+  这是[[file:20210131224615-算法导论.org][算法导论]]第2.1节的笔记以及练习题
+* Note
+  1. 插入排序算法的核心流程：在排序时，取出将要被排序的元素，从后至前找到它将要插入的位置；在此过程中，移动末尾的元素，保证插入动作执行时，待排序的部分数组，是已正确排序的。
+  2. 循环不变式：初始化、保持、终止是循环不变式的三个性质，其思想及证明方法与数学归纳法类似。
+* Exercise
+  1. 略
+
+  2. Insertion-Sort非升序排列
+
+     对于非降序排列，从数组的头部开始向后增加元素，每次增加元素时，从后往前进行比较，将较大的数向后移，保证排序后数组是升序的；则，只需要在从后向前比较的过程中，将较小的数向后移即可
+
+     #+begin_example
+       对于初始数列A[n]
+       for j = 2 to A.length
+           key = A[j]
+           i = j - 1
+           while i > 0 and A[i] < key
+                 A[i+1] = A[i] // 右移
+                 i = i - 1
+           A[i] = key
+     #+end_example
+
+  3. 线性查找的伪代码及其正确性
+     #+begin_example
+       key = NIL
+       for i = 1 to n
+           if A[i] == v:
+              key = i
+              break
+     #+end_example
+  
+     - 初始化：在循环开始前，key = NIL，因为尚未在数组的前i个元素中寻找，故key值为NIL
+     - 保持：对于A[i] != key的判断条件，当A[i]==v时，循环break，故如果A[i] != key，则A[i-1], A[i-2]等均不满足要求
+     - 终止：当A[i]==v时，将i值赋给key，并退出，此时key值符合要求；如果i == n且时A[i]依然不等于v，则key为初值NIL，亦符合要求
+
+  4. 两个n元数组的二进制数相加
+
+     对于两个n元数组A和B表示的二进制数，其和C的任意位i，可表示为(A[i] + B[i] + CARRY(i-1))对2的余数，其中第0位进位为0；
+
+     伪代码为：
+
+     #+begin_example
+       carry = 0
+       for i = 1 to n
+           C[i] = (A[i] + B[i] + carry) % 2
+           carry = (A[i] + B[i]) / 2
+     #+end_example
