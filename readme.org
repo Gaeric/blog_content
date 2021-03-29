@@ -128,7 +128,7 @@
 ** 文件同步命令
    静态文件使用rsync进行同步
    #+begin_src shell
-     rsync -avz ~/project_py/org_blog/static/static_html xxxx@ipv4/ipv6:path/to/static/
+     rsync -avz /path/to/static/html xxxx@ipv4/ipv6:path/to/static/
    #+end_src
 * 图片上传及源码
   由于目前环境中暂未涉及图片及其它二进制文件，所以博客内容中没有考虑二进制文件
