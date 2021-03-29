@@ -1,0 +1,14 @@
+#+title: clash的本机配置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  我的科学上网服务由第三方供应商提供，他们提供了clash配置，但是与我的clash版本不匹配，需要手动修改。
+* 方法
+  在clash升级至1.0版本之后，clash中的关键字发生了一些变化，新的关键字以及其释意在其wiki上可以直接查到：
+
+  https://github.com/Dreamacro/clash/wiki/configuration
+
+  根据新的关键字进行变更即可！
