@@ -1,0 +1,30 @@
+#+title: 使用Alacritty时远程连接服务器
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  改善使用alactritty ssh连接Debian服务器的体验
+
+  20210424更新：阅读ArchWiki后，找到了新的解决方案，尚未验证
+  
+* Note
+  由于Debian上无法安装alactritty，其terminfo中没有alacritty的相关内容，当本地终端使用alacritty进行操作时，其画面显示总是出现问题；
+
+  例如进行回退操作时，本地终端上并不会回退掉光标前的字符，而是出现一个空格；
+
+  这种画面非常不直观，对于操作有很大影响。
+
+  terminfo是什么？https://en.wikipedia.org/wiki/Terminfo
+* 解决方案
+  目前我找到的解决方案共有两种，其中解决方案1经过自己的验证，解决方案2摘抄至ArchWiki，我没有验证；但是推荐验证并使用第2种方法。
+  
+  1. debian上无法直接安装alacritty，下载rust系列因为github的原因又非常困难；而本地的kitty字体展示不正常，于是我将本地的alacritty的terminfo文件~/usr/share/terminfo/a/alacritty*~传递到了debian上，然后重新连接，体验即已完善
+
+
+  2. 上述方法较为繁琐，根据ArchWiki的记录，可以将TERM设置为xterm-256color，以规避远程服务器无法识别alacritty的问题；
+
+     可在alacritty的配置文件中设置env字段下的TERM（其上有注释说明），或者在shell中设置TERM的环境变量为~xterm-256color~： ~export TERM=xterm-256color~
+
+     详情可见于[[https://wiki.archlinux.org/index.php/Alacritty][ArchWiki]]
