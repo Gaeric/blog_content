@@ -1,0 +1,20 @@
+#+title: Mintty字体设置
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  本文说明如何在mintty上设置字体，包含中文字体和英文字体的单独设置。
+
+  在windows的电脑上使用mingw和cgywin的默认终端都是mintty，但是因为没有找到单独设置中文的方法，终端界面一直很难看，今天尝试了一番，找到了对不同语言设置字体的方法，于是弃用了延时较高的alacritty，回归到mintty，在此记录一下。
+* mintty设置
+  参考的来源是mintty使用的Tips：
+  https://github.com/mintty/mintty/wiki/Tips
+
+  最后的字体部分的设置如下：
+  #+begin_example
+    FontChoice=CJK:1
+    Font1=微软雅黑
+    Font=Consolas
+  #+end_example
