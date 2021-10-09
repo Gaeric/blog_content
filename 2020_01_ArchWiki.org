@@ -207,9 +207,14 @@
    git config --global unset http.proxy
    #+end_example
 ** Chromium设置代理
-   在不需要任何设置的条件下，可以按如下方式设置代理
+   chromium可以使用插件设置，我一般使用~switchyomega~，因为它在firefox和chrome上通用
+
+   为chrome/chromium安装switchyomega，首先需要proxy，所以这里记录如何在命令行中为chrome/chromium设置proxy：
+
    #+BEGIN_SRC shell
    chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
    #+END_SRC
+
+   注意首先需要关闭chrome或chromium，在未关闭其进程的情况下启动，proxy设置不会生效；猜测是因为在chrome/chromium进程存在时，新启动的只是一个session
 ** Fcitx5无法与sway兼容
    @see: https://github.com/fcitx/fcitx5/issues/39
