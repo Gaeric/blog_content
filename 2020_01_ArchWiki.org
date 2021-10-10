@@ -102,6 +102,14 @@
    #+BEGIN_EXAMPLE
      set $menu wofi_path | wofi --show run | xargs swaymsg exec --
    #+END_EXAMPLE
+** sway双屏配置
+   sway默认支持多屏，简单使用无须配置。这里记录的配置原因是，HDMI-A-1(简称A1)在左边，HDMI-A-2(A2)在右边，但是使用鼠标时，鼠标需要从A1的左侧才能滑入A2的右侧，非常反直觉；
+
+   尝试设置了sway的输出设置，可以解决这个问题，记录如下：
+   #+begin_example
+     output HDMI-A-1 resolution 1920x1080 position 0,0
+     output HDMI-A-2 resolution 1920x1080 position 1920,0
+   #+end_example
 ** 系统时间不正确需要重新配置
    #+BEGIN_EXAMPLE
     # 将系统时间写入BIOS（--systohc)
