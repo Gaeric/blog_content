@@ -1,285 +1,287 @@
 #+title:Arch拾遗
 #+author: Gaeric
 * 简介
-目前我的主力系统是arch/linux，本文记录在Arch安装和使用过程中的笔记，随时更新
+  目前我的主力系统是arch/linux，本文记录在Arch安装和使用过程中的笔记，随时更新
 * Note
 ** For Installation
-今天在新的机器上重新安装了archlinux，本次安装完全遵循https://wiki.archlinux.org/title/Installation_guide， 但是安装过程中对Boot区域的划分有些迷糊，安装完成后网络连接也出现了问题，本处记录这两个问题
-1. Boot相关磁盘划分以及分区
-   本次安装前将BIOS由Legacy模式切换至UEFI模式，UEFI要求磁盘为GPT格式，于是我依据wiki的说明划分了512M的空间，预留为~EFI FileSystem~，为~sda1~；其它空间格式化为ext4，预留给操作系统，为~sda2~
+   今天在新的机器上重新安装了archlinux，本次安装完全遵循https://wiki.archlinux.org/title/Installation_guide， 但是安装过程中对Boot区域的划分有些迷糊，安装完成后网络连接也出现了问题，本处记录这两个问题
+   1. Boot相关磁盘划分以及分区
+      本次安装前将BIOS由Legacy模式切换至UEFI模式，UEFI要求磁盘为GPT格式，于是我依据wiki的说明划分了512M的空间，预留为~EFI FileSystem~，为~sda1~；其它空间格式化为ext4，预留给操作系统，为~sda2~
 
-   wiki上要求为GPT格式的磁盘建立一个/mnt/boot目录，并将划分出来的~sda1~区域挂载至此，而将预留给操作系统的空间，即sda2挂载至/mnt，然后生成fstab信息；
+      wiki上要求为GPT格式的磁盘建立一个/mnt/boot目录，并将划分出来的~sda1~区域挂载至此，而将预留给操作系统的空间，即sda2挂载至/mnt，然后生成fstab信息；
 
-   然后在建立grub启动项时，又要将sda1挂载至~/efi~或 ~/boot/efi~ （注意与前面生成fstab时并不是在同一个根目录下）；
+      然后在建立grub启动项时，又要将sda1挂载至~/efi~或 ~/boot/efi~ （注意与前面生成fstab时并不是在同一个根目录下）；
 
-   使用mount挂载sda1，无报错，生成的grub.cfg信息正常；但是检查fstab信息，仅有sda2的挂载信息，而sda1的信息不在；
+      使用mount挂载sda1，无报错，生成的grub.cfg信息正常；但是检查fstab信息，仅有sda2的挂载信息，而sda1的信息不在；
 
-   这里我的处理方法是：退出至archiso（U盘镜像启动的安装程序），重新执行genfstab，将fstab信息写入新系统的/etc/fstab；后面新系统能正常启动，
+      这里我的处理方法是：退出至archiso（U盘镜像启动的安装程序），重新执行genfstab，将fstab信息写入新系统的/etc/fstab；后面新系统能正常启动，
 
-   这里应该本应提前将sda1的信息写入fstab之中，但是现在新的机器不方便验证，等下一次装系统时再进行尝试；记录如下：
+      这里应该本应提前将sda1的信息写入fstab之中，但是现在新的机器不方便验证，等下一次装系统时再进行尝试；记录如下：
+      #+begin_example
+        1. mkdir /mnt/efi
+        2. mount /dev/sda1 to /mnt/efi
+        3. genfstab /mnt >> etc/fstab
+        4. genfatab /mnt/efi >> etc/fstab
+        5. config grub2 use /efi as efibootmgr dir on new system
+      #+end_example
+
+   2. 系统软件包安装时，安装如下package group：
+      #+begin_src shell
+        pacstrap /mnt base base-devel linux linux-firmware
+      #+end_src
+      其中base-devel为一些基础的开发软件包，包括~sudo, gcc, split~等，如果要从AUR安装软件，要记得安装这个~package group~
+
+   3. 安装完成后为新系统配置网络
+      本轮没有为新系统配置网络，这是一个失误，联网的方式如下：
+** 如何设置dhcp
+   首先要安装dhcpcd软件，然后如下操作
+
+   1. ip link '查看网卡名称，如enp4s0或eth0
+   2. ip link set enp4s0 up '启动网卡
+   3. dhcpcd enp4s0 '自动配置有线网络
+   4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
+   5. 完成！以后系统开机自动联网！
+** 安装引导
+   #+BEGIN_EXAMPLE
+   # grub-install --target=i386-pc /dev/sdX
+   #+END_EXAMPLE
+   where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
+** 如何安装i3窗口管理器
+   #+BEGIN_SRC shell
+     # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
+     pacman -S xorg xorg-xinit
+     # 然后安装i3程序包组
+     # 为了正常使用，往往需要安装一个虚拟终端
+     pacman -S rxvt-unicode
+     # 程序组列表：https://www.archlinux.org/groups/
+     pacman -S i3
+   #+END_SRC
+** yong输入法安装
+   - 前置
+     yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
+     #+BEGIN_SRC shell
+       wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
+
+       7za e <archive name>
+     #+END_SRC
+** Arch+Win双系统配置Grub引导
+   加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
+   然后运行如下命令，更新 ~/boot/grub/custom.cfg~
+   #+BEGIN_EXAMPLE
+   # grub-mkconfig -o /boot/grub/grub.cfg
+   #+END_EXAMPLE
+
+   参考ArchWiki: https://wiki.archlinux.org/index.php/GRUB
+   本地参考如下
+   #+BEGIN_EXAMPLE
+   ### BEGIN /etc/grub.d/30_os-prober ###
+   menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-78FC9A61FC9A1A08' {
+   insmod part_msdos
+         insmod ntfs
+         set root='hd0,msdos1'
+         if [ x$feature_platform_search_hint = xy ]; then
+         search --no-floppy --fs-uuid --set=root --hint-ieee1275='ieee1275//disk@0,msdos1' --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  78FC9A61FC9A1A08
+         else
+         search --no-floppy --fs-uuid --set=root 78FC9A61FC9A1A08
+         fi
+         parttool ${root} hidden-
+         chainloader +1
+   }
+   ### END /etc/grub.d/30_os-prober ###
+   #+END_EXAMPLE
+** 从AUR安装软件
+   示例：~wlroots-git~ 和 ~sway-git~
+   首先找到 ~Arch~ 提供的 ~AUR~ 仓库
+   分别为：
+   https://aur.archlinux.org/sway-git.git
+   https://aur.archlinux.org/wlroots-git.git
+   
+   由于是 ~git~ 仓库，直接使用 ~git~ 下载：
+   #+BEGIN_EXAMPLE
+   git clone https://aur.archlinux.org/sway-git.git /tmp/sway
+   git clone https://aur.archlinux.org/wlroots-git.git /tmp/wlroots
+   #+END_EXAMPLE
+   然后可以看到相应目录下的 ~PKGBUILD~
+   检查依赖并下载，然后安装
+   
+   直接 ~makepkg -s PKGBUILD~ 
+   这一步将会使用 ~pacman~ 自动解决依赖，并且自动编译成相应的软件包
+   *注意：需要在普通用户下执行*
+   
+   然后使用 ~pacman -U PACKAGENAME~ 安装已经编译完成的包
+   #+BEGIN_EXAMPLE
+   pacman -U wlroots-git.tar.gz
+   #+END_EXAMPLE
+** sway处理乱码并配置终端模拟器
+   此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
+   
+   进去之后发现乱码，安装字体解决
+   #+BEGIN_EXAMPLE
+   # 暂时不考虑中文
+   pacman -S adobe-source-code-pro-fonts
+   #+END_EXAMPLE
+   然后，终端模拟器是必须的，在这里我使用sway默认的~alacritty~，其它可以选择的终端管理器可见于其wiki
+   #+BEGIN_EXAMPLE
+   pacman -S alacritty
+   #+END_EXAMPLE
+   *切记要更改sway的配置，将终端模拟器改为alacritty*
+** sway下的dmenu替代工具
+   wofi是一个替代rofi的工具，做为应用启动器
+
+   要使wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
+   #+BEGIN_EXAMPLE
+     set $menu wofi_path | wofi --show run | xargs swaymsg exec --
+   #+END_EXAMPLE
+** sway双屏配置
+   sway默认支持多屏，简单使用无须配置。这里记录的配置原因是，HDMI-A-1(简称A1)在左边，HDMI-A-2(A2)在右边，但是使用鼠标时，鼠标需要从A1的左侧才能滑入A2的右侧，非常反直觉；
+
+   尝试设置了sway的输出设置，可以解决这个问题，记录如下：
    #+begin_example
-     1. mkdir /mnt/efi
-     2. mount /dev/sda1 to /mnt/efi
-     3. genfstab /mnt >> etc/fstab
-     4. genfatab /mnt/efi >> etc/fstab
-     5. config grub2 use /efi as efibootmgr dir on new system
+     output HDMI-A-1 resolution 1920x1080 position 0,0
+     output HDMI-A-2 resolution 1920x1080 position 1920,0
+   #+end_example
+** 系统时间不正确需要重新配置
+   #+BEGIN_EXAMPLE
+    # 将系统时间写入BIOS（--systohc)
+    hwclock --systohc --localtime
+   #+end_EXAMPLE
+** 系统扬声器无输出
+   使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
+
+   原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
+   #+BEGIN_EXAMPLE
+     pcm.!default {
+                  type hw
+                  card 1
+     }
+
+     ctl.!default {
+                  type hw
+                  card 0
+     }
+   #+end_EXAMPLE
+** Arch安装MySQL数据库
+   在 ~Arch/Linux~ 中，安装 ~Mariadb
+   #+BEGIN_EXAMPLE
+   直接安装相应的软件包
+   pacman -S mysql
+
+   然后执行如下命令：
+   mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+
+   然后先启动 MySQL
+   # systemctl start mariadb
+
+   先配置相应的 root 密码
+   '/usr/bin/mysqladmin' -u root password 'new-password' 
+   '/usr/bin/mysqladmin' -u root -h lantian password 'new-password'  
+   Alternatively you can run: '/usr/bin/mysql_secure_installation'
+
+   然后启动 MariaDB，按 wiki 步骤执行即可
+   # mysql_secure_installation
+   # systemctl restart mariadb
+
+   在Mac或Linux上，需要编辑MySQL的配置文件，把数据库默认的编码全部改为UTF-8。MySQL的配置文件默认存放在/etc/my.cnf或者/etc/mysql/my.cnf：
+
+   [client]
+   default-character-set = utf8
+
+   [mysqld]
+   default-storage-engine = INNODB
+   character-set-server = utf8
+   collation-server = utf8_general_ci
+   #+END_EXAMPLE
+** 安装过程中无法连接wifi
+   #+BEGIN_SRC shell
+     wifi-menu
+     dhcpcd
+   #+END_SRC
+   第一个命令打开menu菜单，连接wifi
+   第二个命令进行dhcp，自动获取ip地址
+** 安装grub时报错
+   #+BEGIN_EXAMPLE
+   1 # grub-install /dev/sda
+         2 /usr/sbin/grub-setup: warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
+         3 /usr/sbin/grub-setup: warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
+         4 /usr/sbin/grub-setup: error: will not proceed with blocklists.
+   #+END_EXAMPLE
+   如上报错中有两条warn，一条error；warn可以忽略，对于此error，使用--force强制执行即可！
+   
+   #+BEGIN_SRC shell
+     grub-install /dev/sda --force
+   #+END_SRC
+** 安装 yong 输入法出错
+   #+BEGIN_EXAMPLE
+   Cannot load module /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   Cannot load module /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
+   /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32 
+   #+END_EXAMPLE
+   由于系统环境为纯64位所致，此错误不影响输入法使用
+** 安装Grub引导报错
+   grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
+   #+BEGIN_EXAMPLE
+   warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
+         warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
+         error: will not proceed with blocklists.
+   #+END_EXAMPLE
+   解决方案：根据字面意思，可以强制写入blocklist；
+   grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB --force
+** 虚机下无法shh到远程服务器
+   报错信息为：
+   packet_write_wait: Connection to 118.24.23.137 port 22: Broken pipe
+   
+   根因为：VMware NAT 网络模式导致
+   
+   解决方法为：手动指定 ssh 参数 -o 'IPQoS=lowdelay throughput'
+   
+   参考链接：https://lvii.github.io/system/2018-08-31-openssh-7.8p1-broken-pipe-under-vmware-vm-with-nat-port-forward/
+** git下载速度过慢
+   使用~proxy~
+   #+begin_example
+   # 设置代理
+   git config --global http.proxy http://127.0.0.1:1080
+   # 取消代理
+   git config --global unset http.proxy
+   #+end_example
+** Chromium设置代理
+   chromium可以使用插件设置，我一般使用~switchyomega~，因为它在firefox和chrome上通用
+
+   为chrome/chromium安装switchyomega，首先需要proxy，所以这里记录如何在命令行中为chrome/chromium设置proxy：
+
+   #+BEGIN_SRC shell
+     chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
+   #+END_SRC
+
+   注意首先需要关闭chrome或chromium，在未关闭其进程的情况下启动，proxy设置不会生效；猜测是因为在chrome/chromium进程存在时，新启动的只是一个session
+** Fcitx5无法与sway兼容
+   @see: https://github.com/fcitx/fcitx5/issues/39
+
+   目前已能正常工作，但是存在英文模式下输入缓慢的问题
+** pacman跳过校验package的签名
+   使用pacamn从镜像源安装sway时，出现了错误
+
+   错误内容如下：
+   #+begin_example
+     error: swaybg: signature from "Brett Cornwall <brett@i--b.com>" is unknown trust
+     :: File /var/cache/pacman/pkg/swaybg-1.1-1-x86_64.pkg.tar.zst is corrupted (invalid or corrupted package (PGP signature)).
+     Do you want to delete it? [Y/n] n
+     ...
+     error: failed to commit transaction (invalid or corrupted package (PGP signature))
    #+end_example
 
-2. 系统软件包安装时，安装如下package group：
-   #+begin_src shell
-     pacstrap /mnt base base-devel linux linux-firmware
-   #+end_src
-   其中base-devel为一些基础的开发软件包，包括~sudo, gcc, split~等，如果要从AUR安装软件，要记得安装这个~package group~
+   google错误内容，找到archlinux中的bug反馈： https://bugs.archlinux.org/task/71704#comment201517
 
-3. 安装完成后为新系统配置网络
-   本轮没有为新系统配置网络，这是一个失误，联网的方式如下：
-** 如何设置dhcp
-首先要安装dhcpcd软件，然后如下操作
+   可知这是因为维护人员的个人签名已经过期了，这个包无法安装
 
-1. ip link '查看网卡名称，如enp4s0或eth0
-2. ip link set enp4s0 up '启动网卡
-3. dhcpcd enp4s0 '自动配置有线网络
-4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
-5. 完成！以后系统开机自动联网！
-** 安装引导
-#+BEGIN_EXAMPLE
-# grub-install --target=i386-pc /dev/sdX
-#+END_EXAMPLE
-where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
-** 如何安装i3窗口管理器
-#+BEGIN_SRC shell
-  # 先要安装相应的xorg程序集，以及相应的xorg-xinit管理器
-  pacman -S xorg xorg-xinit
-  # 然后安装i3程序包组
-  # 为了正常使用，往往需要安装一个虚拟终端
-  pacman -S rxvt-unicode
-  # 程序组列表：https://www.archlinux.org/groups/
-  pacman -S i3
-#+END_SRC
-** yong输入法安装
-- 前置
-  yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
-  #+BEGIN_SRC shell
-    wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
+   这里我没有多加验证，直接设置pacman的签名校验级别为Never（有安全风险，请慎重，并及时改回），示例如下：
 
-    7za e <archive name>
-  #+END_SRC
-** Arch+Win双系统配置Grub引导
-加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
-然后运行如下命令，更新 ~/boot/grub/custom.cfg~
-#+BEGIN_EXAMPLE
-# grub-mkconfig -o /boot/grub/grub.cfg
-#+END_EXAMPLE
+   #+begin_example
+     # file: /etc/pacman.conf
+     SigLevel    = Never
+   #+end_example
 
-参考ArchWiki: https://wiki.archlinux.org/index.php/GRUB
-本地参考如下
-#+BEGIN_EXAMPLE
-### BEGIN /etc/grub.d/30_os-prober ###
-menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-78FC9A61FC9A1A08' {
-insmod part_msdos
-      insmod ntfs
-      set root='hd0,msdos1'
-      if [ x$feature_platform_search_hint = xy ]; then
-      search --no-floppy --fs-uuid --set=root --hint-ieee1275='ieee1275//disk@0,msdos1' --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  78FC9A61FC9A1A08
-      else
-      search --no-floppy --fs-uuid --set=root 78FC9A61FC9A1A08
-      fi
-      parttool ${root} hidden-
-      chainloader +1
-}
-### END /etc/grub.d/30_os-prober ###
-#+END_EXAMPLE
-** 从AUR安装软件
-示例：~wlroots-git~ 和 ~sway-git~
-首先找到 ~Arch~ 提供的 ~AUR~ 仓库
-分别为：
-https://aur.archlinux.org/sway-git.git
-https://aur.archlinux.org/wlroots-git.git
-   
-由于是 ~git~ 仓库，直接使用 ~git~ 下载：
-#+BEGIN_EXAMPLE
-git clone https://aur.archlinux.org/sway-git.git /tmp/sway
-git clone https://aur.archlinux.org/wlroots-git.git /tmp/wlroots
-#+END_EXAMPLE
-然后可以看到相应目录下的 ~PKGBUILD~
-检查依赖并下载，然后安装
-   
-直接 ~makepkg -s PKGBUILD~ 
-这一步将会使用 ~pacman~ 自动解决依赖，并且自动编译成相应的软件包
-*注意：需要在普通用户下执行*
-   
-然后使用 ~pacman -U PACKAGENAME~ 安装已经编译完成的包
-#+BEGIN_EXAMPLE
-pacman -U wlroots-git.tar.gz
-#+END_EXAMPLE
-** sway处理乱码并配置终端模拟器
-此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
-   
-进去之后发现乱码，安装字体解决
-#+BEGIN_EXAMPLE
-# 暂时不考虑中文
-pacman -S adobe-source-code-pro-fonts
-#+END_EXAMPLE
-然后，终端模拟器是必须的，在这里我使用sway默认的~alacritty~，其它可以选择的终端管理器可见于其wiki
-#+BEGIN_EXAMPLE
-pacman -S alacritty
-#+END_EXAMPLE
-*切记要更改sway的配置，将终端模拟器改为alacritty*
-** sway下的dmenu替代工具
-wofi是一个替代rofi的工具，做为应用启动器
+   参考内容如下：
+   https://wiki.archlinux.org/title/Pacman_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Package_signing_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
 
-要使wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
-#+BEGIN_EXAMPLE
-  set $menu wofi_path | wofi --show run | xargs swaymsg exec --
-#+END_EXAMPLE
-** sway双屏配置
-sway默认支持多屏，简单使用无须配置。这里记录的配置原因是，HDMI-A-1(简称A1)在左边，HDMI-A-2(A2)在右边，但是使用鼠标时，鼠标需要从A1的左侧才能滑入A2的右侧，非常反直觉；
-
-尝试设置了sway的输出设置，可以解决这个问题，记录如下：
-#+begin_example
-  output HDMI-A-1 resolution 1920x1080 position 0,0
-  output HDMI-A-2 resolution 1920x1080 position 1920,0
-#+end_example
-** 系统时间不正确需要重新配置
-#+BEGIN_EXAMPLE
- # 将系统时间写入BIOS（--systohc)
- hwclock --systohc --localtime
-#+end_EXAMPLE
-** 系统扬声器无输出
-使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
-
-原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
-#+BEGIN_EXAMPLE
-  pcm.!default {
-               type hw
-               card 1
-  }
-
-  ctl.!default {
-               type hw
-               card 0
-  }
-#+end_EXAMPLE
-** Arch安装MySQL数据库
-在 ~Arch/Linux~ 中，安装 ~Mariadb
-#+BEGIN_EXAMPLE
-直接安装相应的软件包
-pacman -S mysql
-
-然后执行如下命令：
-mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-
-然后先启动 MySQL
-# systemctl start mariadb
-
-先配置相应的 root 密码
-'/usr/bin/mysqladmin' -u root password 'new-password' 
-'/usr/bin/mysqladmin' -u root -h lantian password 'new-password'  
-Alternatively you can run: '/usr/bin/mysql_secure_installation'
-
-然后启动 MariaDB，按 wiki 步骤执行即可
-# mysql_secure_installation
-# systemctl restart mariadb
-
-在Mac或Linux上，需要编辑MySQL的配置文件，把数据库默认的编码全部改为UTF-8。MySQL的配置文件默认存放在/etc/my.cnf或者/etc/mysql/my.cnf：
-
-[client]
-default-character-set = utf8
-
-[mysqld]
-default-storage-engine = INNODB
-character-set-server = utf8
-collation-server = utf8_general_ci
-#+END_EXAMPLE
-** 安装过程中无法连接wifi
-#+BEGIN_SRC shell
-  wifi-menu
-  dhcpcd
-#+END_SRC
-第一个命令打开menu菜单，连接wifi
-第二个命令进行dhcp，自动获取ip地址
-** 安装grub时报错
-#+BEGIN_EXAMPLE
-1 # grub-install /dev/sda
-      2 /usr/sbin/grub-setup: warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
-      3 /usr/sbin/grub-setup: warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
-      4 /usr/sbin/grub-setup: error: will not proceed with blocklists.
-#+END_EXAMPLE
-如上报错中有两条warn，一条error；warn可以忽略，对于此error，使用--force强制执行即可！
-   
-#+BEGIN_SRC shell
-  grub-install /dev/sda --force
-#+END_SRC
-** 安装 yong 输入法出错
-#+BEGIN_EXAMPLE
-Cannot load module /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
-/usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-2.0/2.10.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
-Cannot load module /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32
-/usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so does not export GTK+ IM module API: /usr/lib/gtk-3.0/3.0.0/immodules/im-yong.so: wrong ELF class: ELFCLASS32 
-#+END_EXAMPLE
-由于系统环境为纯64位所致，此错误不影响输入法使用
-** 安装Grub引导报错
-grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
-#+BEGIN_EXAMPLE
-warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
-      warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
-      error: will not proceed with blocklists.
-#+END_EXAMPLE
-解决方案：根据字面意思，可以强制写入blocklist；
-grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB --force
-** 虚机下无法shh到远程服务器
-报错信息为：
-packet_write_wait: Connection to 118.24.23.137 port 22: Broken pipe
-   
-根因为：VMware NAT 网络模式导致
-   
-解决方法为：手动指定 ssh 参数 -o 'IPQoS=lowdelay throughput'
-   
-参考链接：https://lvii.github.io/system/2018-08-31-openssh-7.8p1-broken-pipe-under-vmware-vm-with-nat-port-forward/
-** git下载速度过慢
-使用~proxy~
-#+begin_example
-# 设置代理
-git config --global http.proxy http://127.0.0.1:1080
-# 取消代理
-git config --global unset http.proxy
-#+end_example
-** Chromium设置代理
-chromium可以使用插件设置，我一般使用~switchyomega~，因为它在firefox和chrome上通用
-
-为chrome/chromium安装switchyomega，首先需要proxy，所以这里记录如何在命令行中为chrome/chromium设置proxy：
-
-#+BEGIN_SRC shell
-  chromium --proxy-server="http://localhost:38885;https://localhost:38885;socks5://localhost:37567"
-#+END_SRC
-
-注意首先需要关闭chrome或chromium，在未关闭其进程的情况下启动，proxy设置不会生效；猜测是因为在chrome/chromium进程存在时，新启动的只是一个session
-** Fcitx5无法与sway兼容
-@see: https://github.com/fcitx/fcitx5/issues/39
-
-目前已能正常工作，但是存在英文模式下输入缓慢的问题
-** Pacman安装sway失败
-错误内容如下：
-#+begin_example
-  error: swaybg: signature from "Brett Cornwall <brett@i--b.com>" is unknown trust
-  :: File /var/cache/pacman/pkg/swaybg-1.1-1-x86_64.pkg.tar.zst is corrupted (invalid or corrupted package (PGP signature)).
-  Do you want to delete it? [Y/n] n
-  ...
-  error: failed to commit transaction (invalid or corrupted package (PGP signature))
-#+end_example
-
-google错误内容，找到archlinux中的bug反馈： https://bugs.archlinux.org/task/71704#comment201517
-
-可知这是因为维护人员的个人签名已经过期了，这个包无法安装
-
-这里我没有多加验证，直接设置pacman的签名校验级别为Never（有安全风险，请慎重，并及时改回），示例如下：
-
-#+begin_example
-  # file: /etc/pacman.conf
-  SigLevel    = Never
-#+end_example
-
-参考内容如下：
-https://wiki.archlinux.org/title/Pacman_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Package_signing_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
-
-https://man.archlinux.org/man/pacman.conf.5#PACKAGE_AND_DATABASE_SIGNATURE_CHECKING
+   https://man.archlinux.org/man/pacman.conf.5#PACKAGE_AND_DATABASE_SIGNATURE_CHECKING
