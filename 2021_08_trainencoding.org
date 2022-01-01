@@ -103,6 +103,28 @@
 
    1. 将练习时间调整为早上
 
-   2. 每天练习二十个生字，每个字单练50个，以保证单字的编码熟练；然后十字一组，十组一次，练习十次；再然后十字乱序，练习100次；每天总练习量为6000字！
+   2. 每天练习二十个生字，每个字单练100个，以保证单字的编码熟练；然后十字一组，十组一次，练习十次；再然后十字乱序，练习100次；每天总练习量为6000字！
 
-   
+   3. 写了一个脚本辅助完成这个任务：
+      #+begin_src python
+        import random
+
+
+        def training(prompt_str, times, shuffle=False):
+            while times > 0:
+                if shuffle:
+                    chara_arr = list(prompt_str)
+                    random.shuffle(chara_arr)
+                    prompt_str = "".join(chara_arr)
+                input_str = input(f'{prompt_str}|{times}|: ')
+                if input_str == prompt_str:
+                    times -= 1
+
+
+        characters = input("Input 10 char you want to training: ")
+        for chara in characters:
+            prompt_str = [chara for i in range(10)]
+            training(prompt_str, 10)
+        training(prompt_str, 100)
+        training(characters, 100, shuffle=True)
+      #+end_src
