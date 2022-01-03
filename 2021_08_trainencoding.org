@@ -121,8 +121,9 @@
 
         characters = input("Input 10 char you want to training: ")
         for chara in characters:
-            prompt_str = [chara for i in range(10)]
+            groups = [chara for i in range(10)]
+            prompt_str = "".join(groups)
             training(prompt_str, 10)
-        training(prompt_str, 100)
+        training(characters, 100)
         training(characters, 100, shuffle=True)
       #+end_src
