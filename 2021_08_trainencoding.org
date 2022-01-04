@@ -102,28 +102,124 @@
    1. 将练习时间调整为早上
 
    2. 每天练习二十个生字，每个字单练100个，以保证单字的编码熟练；然后十字一组，十组一次，练习十次；再然后十字乱序，练习100次；每天总练习量为6000字！
-
-   3. 写了一个脚本辅助完成这个任务：
-      #+begin_src python
-        import random
-
-
-        def training(prompt_str, times, shuffle=False):
-            while times > 0:
-                if shuffle:
-                    chara_arr = list(prompt_str)
-                    random.shuffle(chara_arr)
-                    prompt_str = "".join(chara_arr)
-                input_str = input(f'{prompt_str}|{times}|: ')
-                if input_str == prompt_str:
-                    times -= 1
+** training_script
+   #+begin_src python
+     import random
+     import json
 
 
-        characters = input("Input 10 char you want to training: ")
-        for chara in characters:
-            groups = [chara for i in range(10)]
-            prompt_str = "".join(groups)
-            training(prompt_str, 10)
-        training(characters, 100)
-        training(characters, 100, shuffle=True)
-      #+end_src
+     RECORD_FILE = 'record.conf'
+     SINGLE_TIMES = 2
+     REPEAT_TIMES = 2
+     RANDOM_TIMES = 2
+
+
+     class Record:
+         def __init__(self, json_file):
+             try:
+                 with open(json_file, encoding='utf-8') as fp:
+                     content = json.load(fp)
+                 self.characters = content['characters']
+                 self.single_times = content['single']['times']
+                 self.single_chara = content['single']['chara']
+                 self.single_state = content['single']['state']
+                 self.repeat_times = content['repeat_times']
+                 self.random_times = content['random_times']
+             except (FileNotFoundError, AttributeError):
+                 self.create()
+
+         def __str__(self):
+             return f'characters: {self.characters}\n\
+     single_chara: {self.single_chara}\n\
+     single_times: {self.single_times}\n\
+     single_state: {self.single_state}\n\
+     repeat_times: {self.repeat_times}\n\
+     random_times: {self.random_times}\n\
+     '
+
+         def create(self):
+             self.characters = input("Input 10 char you want to training: ")
+             self.single_chara = ''
+             self.single_times = 0
+             self.single_chara = ''
+             self.repeat_times = 0
+             self.random_times = 0
+             self.single_state = 'todo'
+
+             self.store()
+
+         def store(self):
+             content = {}
+             content['characters'] = self.characters
+             content['single'] = {
+                 'chara': self.single_chara,
+                 'times': self.single_times,
+                 'state': self.single_state
+             }
+             content['repeat_times'] = self.repeat_times
+             content['random_times'] = self.random_times
+             with open(RECORD_FILE, 'w', encoding='utf-8') as fp:
+                 json.dump(content, fp, indent=4, ensure_ascii=False)
+
+         def next_single(self):
+             if self.single_chara == '':
+                 self.single_chara = self.characters[0]
+                 self.single_times = 0
+             elif self.single_times < SINGLE_TIMES - 1:
+                 self.single_times += 1
+             elif self.characters.index(self.single_chara) == len(
+                     self.characters) - 1:
+                 self.single_chara = ''
+                 self.single_times = 0
+                 self.single_state = 'done'
+             else:
+                 self.single_chara = list(self.characters)[
+                     self.characters.index(self.single_chara) + 1]
+                 self.single_times = 0
+
+         def next(self):
+             if self.single_state == 'done':
+                 if self.repeat_times < REPEAT_TIMES:
+                     self.repeat_times += 1
+                 elif self.random_times < RANDOM_TIMES:
+                     self.random_times += 1
+                 else:
+                     self.create()
+             else:
+                 self.next_single()
+
+         def get_prompt(self):
+             print(self)
+             if self.single_state == 'done':
+                 if self.repeat_times < REPEAT_TIMES:
+                     return (self.characters, self.repeat_times)
+                 elif self.random_times < REPEAT_TIMES:
+                     group = list(self.characters)
+                     random.shuffle(group)
+                     return (''.join(group), self.random_times)
+                 else:
+                     self.next()
+                     return self.get_prompt()
+             else:
+                 if self.single_chara == '':
+                     self.next()
+                 return (''.join([self.single_chara for i in range(10)]),
+                         self.single_times)
+
+
+     def training(prompt_str, times):
+         while True:
+             input_str = input(f'{prompt_str}|{times:03}|: ')
+             if input_str == prompt_str:
+                 break
+
+
+     if __name__ == '__main__':
+         record = Record(RECORD_FILE)
+         while True:
+             prompt, times = record.get_prompt()
+             training(prompt, times)
+             record.next()
+             record.store()
+   #+end_src
+   [2022-01-04 Tue]
