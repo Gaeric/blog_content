@@ -203,7 +203,7 @@
              if self.single_state == 'done':
                  if self.repeat_times < REPEAT_TIMES:
                      return (self.characters, self.repeat_times)
-                 elif self.random_times < REPEAT_TIMES:
+                 elif self.random_times < RANDOM_TIMES:
                      group = list(self.characters)
                      random.shuffle(group)
                      return (''.join(group), self.random_times)
