@@ -112,6 +112,8 @@
     1. 因为每天只打两组字，其它单字得不到练习
 
     2. 没有击键压力，随着单字遍数的增加，进步的速度放缓
+
+    取消了乱序练习，每天晚上的练习恢复
 ** training_script
    #+begin_src python
      import random
