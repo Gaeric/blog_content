@@ -115,6 +115,10 @@
     取消了乱序练习，每天晚上的练习恢复
 
     因为上述变化，取消待突破项目
+
+    
+    每天练习二十个生字，每个字单练50个，以保证单字的编码熟练；然后十字一组，十组一次，练习五次；
+    然后在跟打器上，至第一个字开始，十字一组击键过六
 ** training_script
    #+begin_src python
      import random
@@ -123,8 +127,8 @@
 
      RECORD_FILE = 'record.conf'
      SINGLE_TIMES = 5
-     REPEAT_TIMES = 100
-     RANDOM_TIMES = 50
+     REPEAT_TIMES = 50
+     RANDOM_TIMES = 0
 
 
      class Record:
