@@ -258,6 +258,10 @@
    @see: https://github.com/fcitx/fcitx5/issues/39
 
    目前已能正常工作，但是存在英文模式下输入缓慢的问题
+*** [2022-02-12 Sat]
+    这段时间以来fcitx5都不能正常工作，今天尝试将/env/environment文件中的GTK_IM_MODULE设置删掉了之后，fcitx5反倒能在firefox中正常工作了
+
+    然后实验按照archwiki上的说明，使用了pam_environmen文件设置了环境变量后，fcitx5不能在firefox中使用，这个问题的原因目前不清楚
 ** pacman跳过校验package的签名
    使用pacamn从镜像源安装sway时，出现了错误
 
