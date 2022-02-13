@@ -262,6 +262,11 @@
     这段时间以来fcitx5都不能正常工作，今天尝试将/env/environment文件中的GTK_IM_MODULE设置删掉了之后，fcitx5反倒能在firefox中正常工作了
 
     然后实验按照archwiki上的说明，使用了pam_environmen文件设置了环境变量后，fcitx5不能在firefox中使用，这个问题的原因目前不清楚
+*** fcitx5开机在sway下自启动
+
+    #+begin_src sh
+      exec --no-startup-id fcitx5 -d
+    #+end_src
 ** pacman跳过校验package的签名
    使用pacamn从镜像源安装sway时，出现了错误
 
@@ -289,3 +294,4 @@
    https://wiki.archlinux.org/title/Pacman_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Package_signing_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
 
    https://man.archlinux.org/man/pacman.conf.5#PACKAGE_AND_DATABASE_SIGNATURE_CHECKING
+   
