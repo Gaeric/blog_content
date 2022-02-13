@@ -57,13 +57,13 @@
      pacman -S i3
    #+END_SRC
 ** yong输入法安装
-   - 前置
-     yong正常工作需要 GTK2 和 GTK3 环境，且唤醒快捷键会被Emacs阻拦
-     #+BEGIN_SRC shell
-       wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
+   #+BEGIN_SRC shell
+     wget http://ys-c.ys168.com/244626543/hVfHkVk4K465F3K6KM6/yong-lin-2.5.0-0.7z;
 
-       7za e <archive name>
-     #+END_SRC
+     7za e <archive name>
+   #+END_SRC
+
+   Note: yong正常工作需要GTK2和GTK3，注意C+Space快捷键可能被其它应用程序拦截
 ** Arch+Win双系统配置Grub引导
    加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
    然后运行如下命令，更新 ~/boot/grub/custom.cfg~
