@@ -1,0 +1,11 @@
+#+title: 声笔专用librime更新
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* Intro
+  声笔所使用的librime加入了非常多的自有元素，这些元素的加入导致它同步上游需要花费些精力，目前它的作者没有精力同步上游，我来尝试一次
+* List
+  1. 在window上编译librime
+* Note
