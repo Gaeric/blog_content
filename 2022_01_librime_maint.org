@@ -8,4 +8,25 @@
   声笔所使用的librime加入了非常多的自有元素，这些元素的加入导致它同步上游需要花费些精力，目前它的作者没有精力同步上游，我来尝试一次
 * List
   1. 在window上编译librime
+     在windows上使用mingw64的环境编译，需要前置安装的依赖如下：
+     # 编译环境如下：
+     "${MINGW_PACKAGE_PREFIX}-cmake"
+     "${MINGW_PACKAGE_PREFIX}-ninja"
+     "${MINGW_PACKAGE_PREFIX}-gtest"
+     "${MINGW_PACKAGE_PREFIX}-cc"
+     # 编译依赖如下：
+     "${MINGW_PACKAGE_PREFIX}-boost"
+     "${MINGW_PACKAGE_PREFIX}-icu"
+     "${MINGW_PACKAGE_PREFIX}-leveldb"
+     "${MINGW_PACKAGE_PREFIX}-marisa"
+     "${MINGW_PACKAGE_PREFIX}-opencc"
+     "${MINGW_PACKAGE_PREFIX}-yaml-cpp"
+     "${MINGW_PACKAGE_PREFIX}-glog"
+     "${MINGW_PACKAGE_PREFIX}-capnproto"
+
+     结合mingw64的librime的[[https://github.com/msys2/MINGW-packages/blob/master/mingw-w64-librime/PKGBUILD][PKGBUILD]]，以久librime主页的说明：https://github.com/rime/librime
+
+     注意：编译依赖中有一部分是在librime的源码中thirdparty包含的部分，但是推荐使用包管理器安装依赖，见于：https://github.com/rime/librime/issues/389
+
+     直接编译遇到了bcryot相关的报错，需要修改代码(记录时间20220215)，见于：https://github.com/rime/librime/issues/348
 * Note
