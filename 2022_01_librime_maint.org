@@ -29,4 +29,9 @@
      注意：编译依赖中有一部分是在librime的源码中thirdparty包含的部分，但是推荐使用包管理器安装依赖，见于：https://github.com/rime/librime/issues/389
 
      直接编译遇到了bcryot相关的报错，需要修改代码(记录时间20220215)，见于：https://github.com/rime/librime/issues/348
+
+  2. Merge代码
+     - 检查发现sbxlm的librime之前已经merge过librime的部分更新了，所以后续也只能是merge
+     - 目前直接merge文件冲突极少，已向上游反馈
 * Note
+  1. lim-sbfd不可以缺少，因为windows上的librime一直未能成功调用，需要其做备份方案
