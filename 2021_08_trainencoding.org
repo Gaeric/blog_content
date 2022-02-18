@@ -174,7 +174,7 @@
 
          def create(self):
              while True:
-                 character = input("Input 10 char you want to training: ")
+                 character = input("Input some char you want to training: ")
                  if character:
                      break
              self.characters = character
