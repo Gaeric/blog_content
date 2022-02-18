@@ -173,7 +173,11 @@
      '
 
          def create(self):
-             self.characters = input("Input 10 char you want to training: ")
+             while True:
+                 character = input("Input 10 char you want to training: ")
+                 if character:
+                     break
+             self.characters = character
              self.single_chara = ''
              self.single_times = 0
              self.single_chara = ''
