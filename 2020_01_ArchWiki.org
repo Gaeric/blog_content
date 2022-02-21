@@ -267,6 +267,10 @@
     #+begin_src sh
       exec --no-startup-id fcitx5 -d
     #+end_src
+** 使用声笔飞单
+   在archlinux上使用声笔码非常简单，首先安装librime-sbxlm-git这个package（需要archlinuxcn源，如果没有，需要使用aur，或手动安装）
+
+   fcitx5的配置文件放置在~/.local/share/fcitx5/目录下，其下的rime目录存放了rime的文件，直接按rime的格式，修改默认的输入法，并进行配置即可。
 ** pacman跳过校验package的签名
    使用pacamn从镜像源安装sway时，出现了错误
 
