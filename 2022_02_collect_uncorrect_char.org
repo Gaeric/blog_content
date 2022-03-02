@@ -1,0 +1,21 @@
+#+title: 错字收集的方法
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* Intro
+  跟打器中需要增加一个错字收集的功能，这个功能初看上去不太清晰，在这里记录一下
+* Content
+  设So为模板字符串，Si为上一次的输入字符串，Si+1为当前的输入字符串；
+
+  首先对Si和Si+1做一次diff，取出其差异，划分为新增、删除和替换
+
+  对于新增，确认其新增位置的锚点l，确定新增字符串的长度n，逐字比对l位置增量n个字符的正确情况，并将错字收集起来
+
+  对于删除，不除在输入字符串，无需修改
+
+  替换等同于先删除在新增，找到各个修改点按新增的方法依次处理即可
+* Note
+  这里有一个原则，那就是跟打器是将Si和So逐字对比的，但这个逐字对比的结果与错字收集没有影响，错字收集只需要关注新增的内容是否符合预期即可，这是容易混淆的地方
+
