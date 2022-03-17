@@ -275,6 +275,18 @@
     #+BEGIN_EXAMPLE
     pacman -U wlroots-git.tar.gz
     #+END_EXAMPLE
+*** 安装和锁定指定版本的软件
+    1. 在确认问题之前，首先应当要掌握如何使用pacman安装指定版本的软件
+       参考：https://zhuanlan.zhihu.com/p/260993724
+
+       对于之前没安装过的包，需要手动去Arch Linux Archive找到包的url，执行如下指令安装：
+       pacman -U https://archive.archlinux.org/packages/.../packagename.pkg.tar.xz
+
+       对于之前有安装过的package，可以在var/cache/pacman/pkg下找到，执行
+       sudo pacman -U /var/cache/pacman/pkg/python-...-x86_64.pkg.tar.zst
+
+       如果这个pkg不想升级，则在/etc/pacman.conf的IgnorePkg中加上刚刚安装的包
+
 * History
   本栏记录那些已经不再使用的记录，过去验证的经验仅供参考
 ** yong输入法

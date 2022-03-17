@@ -7,16 +7,5 @@
 * 简介
   今天再次发现升级了系统之后，原有的python虚拟环境全部被破坏，这个问题一再干扰我在必要的时候使用python，这一次务必要排查清楚这个问题
 * 笔记
-  1. 在确认问题之前，首先应当要掌握如何使用pacman安装指定版本的软件
-     参考：https://zhuanlan.zhihu.com/p/260993724
-
-     对于之前没安装过的包，需要手动去Arch Linux Archive找到包的url，执行如下指令安装：
-     pacman -U https://archive.archlinux.org/packages/.../packagename.pkg.tar.xz
-
-     对于之前有安装过的package，可以在var/cache/pacman/pkg下找到，执行
-     sudo pacman -U /var/cache/pacman/pkg/python-...-x86_64.pkg.tar.zst
-
-     如果这个pkg不想升级，则在/etc/pacman.conf的IgnorePkg中加上刚刚安装的包
-
-  2. 确认如何使用单独的python虚拟环境，以避免类似问题发生
+  1. 确认如何使用单独的python虚拟环境，以避免类似问题发生
      目前使用--copies指令进行尝试，不确定是否生效
