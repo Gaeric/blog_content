@@ -1,0 +1,26 @@
+#+title: 开发者手记
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  本文说明一下如何为sgs添加新的event，sgs指github的donle/sgs项目；
+
+  以下所有说法为个人观点，可能有错误，请结合代码实际确认
+* 正文
+  要添加事件，首先要知道event是用来做什么的。
+
+  sgs里面，event用于前后端传递信息，这个传递的信息可以用于前端修改状态，用于获取用户的选择，或者用于改变后端的数据。
+
+  event分为ServerEvent和ClientEvent，由server发出，client处理的即为ServerEvent，由client发出，server处理的即为ClientEvent
+
+  我们想添加一个ReviveEvent，从效果上来看，这是server改变玩家的发出一个事件请求，让一名玩家复活的行为。 这个事件只能从server发送到client，所以这是一个ServerEvent
+
+  在GameEventIdentifiers中添加一个PlayerReviveEvent，然后在ServerEvent这个Interface中添加PlayerReviveEvent的结构。
+
+  由于需要客户端去处理这个事件，我们首先要在clientActiveListenerEvents添加这个事件，然后在client的onHandleIncommingEvent中添加对这个事件的处理；
+
+  最后，因为这个事件是一个不需要玩家响应的事件，该事件的传递使用broadcast进行广播；
+* 后记
+  注意：notify设计用于进行交互，而broadcast用于通知，不需要玩家响应的事件应该使用broadcast
