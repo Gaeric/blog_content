@@ -1,0 +1,9 @@
+#+title: 桌面环境杂想
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  我目前使用的桌面环境是swaywm，最近一直想尝试gnome配合gnome-shell-extension实现的平铺效果，说实话初体验并不好，但是我还是想更进一步尝试。我感觉到了自己长期以来难以选择的心态，于是将现在的思考写在这里，期望能够理清思路，少走弯路。
+* 
