@@ -132,6 +132,10 @@
    #+end_src
 * 图片上传及源码
   博客需要进一步完善对图片和二进制文件的支持
+
+  目前已有两种方案可以用于支持图片，一是将图片编码为base64，直接插入网页中；另外一种是将图片的链接进行转换和转移，博文上传到个人网站时同步将这些静态文件上传；
+
+  两种实现需要的elisp代码均已合在init-org中
 * Note
   1. 设置org-publish-use-timestamps-flag以忽略文件是否改动，将文件重新publish至新目录
      #+begin_src emacs-lisp
