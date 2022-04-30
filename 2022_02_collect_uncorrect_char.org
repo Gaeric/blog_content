@@ -4,7 +4,7 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-* Intro
+* 简介
   跟打器中需要增加一个错字收集的功能，这个功能初看上去不太清晰，在这里记录一下
 * Content
   设So为模板字符串，Si为上一次的输入字符串，Si+1为当前的输入字符串；

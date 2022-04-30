@@ -4,7 +4,7 @@
 #+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
 #+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
 #+OPTIONS: ^:{}
-* Intro
+* 简介
   声笔飞单方案需要进行单字练习才能进步，这部分练习要花费大量的时间，它也理应进入每天进步两个一点点的记录之中。
 
   在当前，练习是两个一点点的主要内容之一；在练字熟练之后，它仍然是完成上述每天进步两个一点点的保底项目。
