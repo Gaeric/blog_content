@@ -1,7 +1,7 @@
 #+title:Arch拾遗
 #+author: Gaeric
 * 简介
-  目前我的主力系统是arch/linux，本文记录在Arch安装和使用过程中的笔记，随时更新
+  目前我的主力系统是archlinux，本文记录在Arch安装和使用过程中的笔记，本文的主要目的是让自己能够在再次面对这些问题时回忆起关键信息，技术解释的不够全面和详细，请参考archwiki，随时更新
 * Note
 ** For Installation
    今天在新的机器上重新安装了archlinux，本次安装完全遵循https://wiki.archlinux.org/title/Installation_guide， 但是安装过程中对Boot区域的划分有些迷糊，安装完成后网络连接也出现了问题，本处记录这两个问题
@@ -285,7 +285,6 @@
        sudo pacman -U /var/cache/pacman/pkg/python-...-x86_64.pkg.tar.zst
 
        如果这个pkg不想升级，则在/etc/pacman.conf的IgnorePkg中加上刚刚安装的包
-
 * History
   本栏记录那些已经不再使用的记录，过去验证的经验仅供参考
 ** yong输入法
