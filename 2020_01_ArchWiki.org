@@ -99,20 +99,19 @@
      hwclock --systohc --localtime
     #+end_EXAMPLE
 *** 系统扬声器无输出
-    使用speaker测试发现default的声卡无问题，但是apaly无法播放音频
+    首先尝试使用speaker-test -c 0检查扬声器是否有输出，有声音输出则无须进行下面的设置，进行其它检查即可
 
-    原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf
+    如果没有输出，首先通过aplay -L确认一下所有的音频设备，找到自已期望输出声音的设备类型，如PCH，使用-D参数手动指定为 speaker-test -D default:PCH -c 0
+
+    如果无声音输出，下文方法不适用；如果此时有声音输出，说明是默认声卡配置不正确。
+
+    原因为默认声卡选择错误，将下列内容追加至/etc/asound.conf或~/.asroundrc
     #+BEGIN_EXAMPLE
-      pcm.!default {
-                   type hw
-                   card 1
-      }
-
-      ctl.!default {
-                   type hw
-                   card 0
-      }
+    defaults.ctl.card 2;
+    defaults.pcm.card 2;
     #+end_EXAMPLE
+
+    上例中defaults.ctl.card为固定格式，表明将声音设备的卡及控制都设置为card2，card的编号可以通过aplay -l获取
 *** 安装过程中无法连接wifi
     #+BEGIN_SRC shell
       wifi-menu
