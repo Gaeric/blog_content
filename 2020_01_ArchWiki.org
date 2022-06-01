@@ -159,7 +159,7 @@
     #+BEGIN_EXAMPLE
     pacman -S alacritty
     #+END_EXAMPLE
-    *切记要更改sway的配置，将终端模拟器改为alacritty*
+    *sway现在默认的终端模拟器为alacritty，如果修改为其它的终端模拟器，记得修改config中的$term配置*
 *** sway下的dmenu替代工具
     wofi是一个替代rofi的工具，做为应用启动器
 
