@@ -153,7 +153,7 @@
     进去之后发现乱码，安装字体解决
     #+BEGIN_EXAMPLE
     # 暂时不考虑中文
-    pacman -S adobe-source-code-pro-fonts
+    pacman -S noto-fonts adobe-source-code-pro-fonts
     #+END_EXAMPLE
     然后，终端模拟器是必须的，在这里我使用sway默认的~alacritty~，其它可以选择的终端管理器可见于其wiki
     #+BEGIN_EXAMPLE
