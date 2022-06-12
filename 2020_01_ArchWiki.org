@@ -191,7 +191,9 @@
 *** 使用声笔飞单
     在archlinux上使用声笔码非常简单，首先安装librime-sbxlm-git这个package（需要archlinuxcn源，如果没有，需要使用aur，或手动安装）
 
-    fcitx5的配置文件放置在~/.local/share/fcitx5/目录下，其下的rime目录存放了rime的文件，直接按rime的格式，修改默认的输入法，并进行配置即可。
+    然后安装arch上已经配置好的rime-sbxlm rime-sbxlm-sbfm这两个package，这两个package提供了必要的文件，安装完成后执行sbxlm-init；
+
+    fcitx5的配置文件放置在~/.local/share/fcitx5/目录下，其下的rime目录存放了rime的文件，修改默认的输入法，并进行deploy即可。
 ** Package
 *** Arch安装MySQL数据库
     在 ~Arch/Linux~ 中，安装 ~Mariadb
