@@ -194,6 +194,8 @@
     然后安装arch上已经配置好的rime-sbxlm rime-sbxlm-sbfm这两个package，这两个package提供了必要的文件，安装完成后执行sbxlm-init；
 
     fcitx5的配置文件放置在~/.local/share/fcitx5/目录下，其下的rime目录存放了rime的文件，修改默认的输入法，并进行deploy即可。
+*** TODO glog版本问题记录
+    今天在另一台PC上发现glog版本为0.6.0时，与现有的rime-sbxlm-git这个package有兼容性问题，本次通过回退glog的版本解决
 ** Package
 *** Arch安装MySQL数据库
     在 ~Arch/Linux~ 中，安装 ~Mariadb
