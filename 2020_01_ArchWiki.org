@@ -176,9 +176,6 @@
       output HDMI-A-2 resolution 1920x1080 position 1920,0
     #+end_example
 ** Fcitx5
-   @see: https://github.com/fcitx/fcitx5/issues/39
-
-   目前已能正常工作，但是存在英文模式下输入缓慢的问题
 *** [2022-02-12 Sat]
     这段时间以来fcitx5都不能正常工作，今天尝试将/env/environment文件中的GTK_IM_MODULE设置删掉了之后，fcitx5反倒能在firefox中正常工作了
 
