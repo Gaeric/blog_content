@@ -230,10 +230,10 @@
      import json
 
 
-     RECORD_FILE = 'record.conf'
-     SINGLE_TIMES = 5
-     REPEAT_TIMES = 50
-     RANDOM_TIMES = 0
+     RECORD_FILE = 'record.json'
+     SINGLE_TIMES = 2
+     REPEAT_TIMES = 2
+     RANDOM_TIMES = 2
 
 
      class Record:
@@ -247,8 +247,11 @@
                  self.single_state = content['single']['state']
                  self.repeat_times = content['repeat_times']
                  self.random_times = content['random_times']
+                 self.record_speed = content['record_speed']
+                 self.record_typed = content['record_typed']
              except (FileNotFoundError, AttributeError):
-                 self.create()
+                 self.clear_record()
+                 self.record()
 
          def __str__(self):
              return f'characters: {self.characters}\n\
@@ -257,24 +260,21 @@
      single_state: {self.single_state}\n\
      repeat_times: {self.repeat_times}\n\
      random_times: {self.random_times}\n\
+     record_speed: {self.record_speed}\n\
+     record_typed: {self.record_typed}\n\
      '
 
-         def create(self):
-             while True:
-                 character = input("Input some char you want to training: ")
-                 if character:
-                     break
-             self.characters = character
+         def clear_record(self):
+             self.characters = ''
              self.single_chara = ''
              self.single_times = 0
-             self.single_chara = ''
+             self.single_state = ''
              self.repeat_times = 0
              self.random_times = 0
-             self.single_state = 'todo'
+             self.record_speed = 0
+             self.record_typed = 0
 
-             self.store()
-
-         def store(self):
+         def record(self):
              content = {}
              content['characters'] = self.characters
              content['single'] = {
@@ -284,68 +284,60 @@
              }
              content['repeat_times'] = self.repeat_times
              content['random_times'] = self.random_times
+             content['record_speed'] = self.record_speed
+             content['record_typed'] = self.record_typed
              with open(RECORD_FILE, 'w', encoding='utf-8') as fp:
                  json.dump(content, fp, indent=4, ensure_ascii=False)
 
-         def next_single(self):
-             if self.single_chara == '':
-                 self.single_chara = self.characters[0]
-                 self.single_times = 0
-             elif self.single_times < SINGLE_TIMES - 1:
-                 self.single_times += 1
-             elif self.characters.index(self.single_chara) == len(
-                     self.characters) - 1:
-                 self.single_chara = ''
-                 self.single_times = 0
-                 self.single_state = 'done'
-             else:
-                 self.single_chara = list(self.characters)[
-                     self.characters.index(self.single_chara) + 1]
-                 self.single_times = 0
 
-         def next(self):
-             if self.single_state == 'done':
-                 if self.repeat_times < REPEAT_TIMES:
-                     self.repeat_times += 1
-                 elif self.random_times < RANDOM_TIMES:
-                     self.random_times += 1
-                 else:
-                     self.create()
-             else:
-                 self.next_single()
+         def practice(self, prompt, times):
+             while True:
+                 input_str = input(f'{prompt}|{times:03}|: ')
+                 if input_str == prompt:
+                     break
 
-         def get_prompt(self):
-             print(self)
-             if self.single_state == 'done':
-                 if self.repeat_times < REPEAT_TIMES:
-                     return (self.characters, self.repeat_times)
-                 elif self.random_times < RANDOM_TIMES:
-                     group = list(self.characters)
-                     random.shuffle(group)
-                     return (''.join(group), self.random_times)
-                 else:
-                     self.next()
-                     return self.get_prompt()
-             else:
+         def do_single(self):
+             while self.single_state != 'done':
                  if self.single_chara == '':
-                     self.next()
-                 return (''.join([self.single_chara for i in range(10)]),
-                         self.single_times)
+                     self.single_chara = self.characters[0]
+                     self.single_times = 0
+                 if self.single_times == SINGLE_TIMES:
+                     if self.characters.index(
+                             self.single_chara) == len(self.characters) - 1:
+                         self.single_chara = ''
+                         self.single_times = 0
+                         self.single_state = 'done'
+                         self.record()
+                         break
 
 
-     def training(prompt_str, times):
-         while True:
-             input_str = input(f'{prompt_str}|{times:03}|: ')
-             if input_str == prompt_str:
-                 break
+                     self.single_chara = list(self.characters[
+                         self.characters.index(self.single_chara) + 1])
+                     self.single_times = 0
 
+                     prompt = ''.join([self.single_chara for i in range(10)])
+                     times = self.single_times + 1
+                     self.practice(prompt, times)
+                     self.single_times += 1
+                     self.record()
 
-     if __name__ == '__main__':
-         record = Record(RECORD_FILE)
-         while True:
-             prompt, times = record.get_prompt()
-             training(prompt, times)
-             record.next()
-             record.store()
+         def do_random(self):
+             while self.random_times < RANDOM_TIMES:
+                 group = list(self.characters)
+                 random.shuffle(group)
+                 self.practice(''.join(group), self.random_times + 1)
+                 self.random_times += 1
+                 self.record()
+
+         def do_repeat(self):
+             while self.repeat_times < REPEAT_TIMES:
+                 self.practice(self.characters, self.repeat_times + 1)
+                 self.repeat_times += 1
+                 self.record()
+
+         def training(self):
+             self.do_single()
+             self.do_repeat()
+             self.do_random()
    #+end_src
    [2022-01-04 Tue]
