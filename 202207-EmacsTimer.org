@@ -1,0 +1,23 @@
+#+title: Emacs延时技术
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  本文记录一个demo，要求停止输入达到0.2秒后，在message中打印hello字符串
+* 实现
+  #+begin_src emacs-lisp
+    (defcustom demo-idle-delay 0.2 "The idle delay in seconds echo hello")
+    (defvar demo-timer nil)
+
+    (defun demo-monitor()
+      "see hello delay"
+      (if demo-timer (cancel-timer demo-timer))
+      (setq demo-timer
+            (run-with-timer demo-idle-delay nil (lambda () (message "hello")))))
+
+    (add-hook 'post-self-insert-hook 'demo-monitor)
+    ;; (remove-hook 'post-self-insert-hook 'demo-monitor)
+  #+end_src
+  
