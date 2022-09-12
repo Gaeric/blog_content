@@ -1,0 +1,25 @@
+#+title: bevy学习记录
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* Intro
+  本篇记录我对bevy的学习过程。
+
+  在记录实际的应用之前，让我先来确立几个问题：为什么是bevy，要怎么学习，记录的内容是什么？
+
+  为什么是bevy，但实际上我只能在godot和bevy中选择一个，如果说为什么我要选择bevy，那也许，它的组件化的设计理念更符合我的偏好，原生支持rust也是一个不小的加分项。总而言之，我希望能从之学到游戏开发的方法，以及更多的提升我的rust水平。
+
+  要怎么学习，这个问题其实我刚刚想好，学习的过程大概以基础知识学习和实际项目实践两个部分。让我们先将两个部分分开，首先来进行基础知识的学习，然后在有了一定的基础之后，设定一个小小的实践目标并将其完成。我们衡量学习是否进行的标准是每天两个commit，用这个的指标来控制我个人的行为。
+
+  记录的内容，就是我学习的过程。也许会有一些小的基础知识的用法，也许有一些实践的心得，总而言之，这就是一篇随笔
+* Basic
+** Setup
+   官网链接：https://bevyengine.org/learn/book/getting-started/setup/
+
+   1. bevy可以视作一个rust的package，创建新项目或者将其添加在已有项目中即可。
+   2. cargo workspaces特性可以友好的支撑我们记录这个学习过程，但是目前还不会使用它，这个稍后学习：[[https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html][链接]]。
+   3. 调整bevy项目的debug级别已正常调试项目：[[https://bevyengine.org/learn/book/getting-started/setup/#compile-with-performance-optimizations][链接]]
+   4. 快速编译项目；众所周知rust编译速度比较慢，这里主要使用了两个方法加快编译速度，一是动态链接bevy，二是使用其它的链接器，我们只尝试第一个改进；
+* Practice
