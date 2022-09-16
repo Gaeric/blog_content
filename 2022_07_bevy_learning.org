@@ -22,6 +22,12 @@
    2. cargo workspaces特性可以友好的支撑我们记录这个学习过程，但是目前还不会使用它，这个稍后学习：[[https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html][链接]]。
    3. 调整bevy项目的debug级别已正常调试项目：[[https://bevyengine.org/learn/book/getting-started/setup/#compile-with-performance-optimizations][链接]]
    4. 快速编译项目；众所周知rust编译速度比较慢，这里主要使用了两个方法加快编译速度，一是动态链接bevy，二是使用其它的链接器，我们只尝试第一个改进；
+   5. 使用workspace
 ** mesh2d
    首先通过Camera2dBundle生成了一个默认的2D神角，然后加入了一个默认的四边形，并描述了大小并填充了颜色
+** sprite
+   1. sprite大概相当于一个实际的小组件
 * Practice
+* Question
+  1. assets的路径如何指定
+  2. 如何加载.jpg格式的文件
