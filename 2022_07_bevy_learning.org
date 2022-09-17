@@ -27,7 +27,10 @@
    首先通过Camera2dBundle生成了一个默认的2D神角，然后加入了一个默认的四边形，并描述了大小并填充了颜色
 ** sprite
    1. sprite大概相当于一个实际的小组件
+** move_sprite
+   一个移动组件的方法
 * Practice
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
+
