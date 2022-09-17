@@ -28,9 +28,10 @@
 ** sprite
    1. sprite大概相当于一个实际的小组件
 ** move_sprite
-   一个移动组件的方法
+   一个移动组件的示例
 * Practice
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
+  3. commands(...).insert的含义是什么？
 
