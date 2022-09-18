@@ -29,6 +29,8 @@
    1. sprite大概相当于一个实际的小组件
 ** move_sprite
    一个移动组件的示例
+** transparency
+   一个透明相关的示例
 * Practice
 * Question
   1. assets的路径如何指定
