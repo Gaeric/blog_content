@@ -31,6 +31,8 @@
    一个移动组件的示例
 ** transparency
    一个透明相关的示例
+** sprite_sheet
+   一个从png图片生成动画的示例
 * Practice
 * Question
   1. assets的路径如何指定
