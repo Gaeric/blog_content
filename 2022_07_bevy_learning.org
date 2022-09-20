@@ -33,6 +33,8 @@
    一个透明相关的示例
 ** sprite_sheet
    一个从png图片生成动画的示例
+** sprite_flipping
+   这里展示了从图片加载的sprite，对图像进行左右或上下翻转
 * Practice
 * Question
   1. assets的路径如何指定
