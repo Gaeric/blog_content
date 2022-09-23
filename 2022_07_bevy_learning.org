@@ -39,6 +39,8 @@
    这里展示了如何使用纯色构建一个多边形，包含了常见的矩形、圆和六边形
 ** text2d
    这里展示了如何使用构建纯文本的动画内容
+** mesh2d_vertex_color_texture
+   这里展示了使用渐变色渲染图片的一部分
 * Practice
 * Question
   1. assets的路径如何指定
