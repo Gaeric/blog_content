@@ -41,9 +41,11 @@
    这里展示了如何使用构建纯文本的动画内容
 ** mesh2d_vertex_color_texture
    这里展示了使用渐变色渲染图片的一部分
+** system_param
 * Practice
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
   3. commands(...).insert的含义是什么？
+  4. system_param并没有看懂
 
