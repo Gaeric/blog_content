@@ -43,6 +43,12 @@
    这里展示了使用渐变色渲染图片的一部分
 ** system_param
 * Practice
+** bounce_up
+   纯粹的记录官方例子效率过低，改为先抄一份已经完成的游戏作品，从中学习他人已经使用过的方法；
+
+   本次选择的游戏为：https://github.com/cryscan/summer-jam
+
+   这个游戏有一定的趣味性，同时我可以作一些素材上的改动尝试
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
