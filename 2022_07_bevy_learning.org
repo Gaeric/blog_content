@@ -49,6 +49,21 @@
    本次选择的游戏为：https://github.com/cryscan/summer-jam
 
    这个游戏有一定的趣味性，同时我可以作一些素材上的改动尝试
+*** Note
+    加入background时遇到了一些问题：
+
+    1. 首先需要绑定camera，这个意义不明
+    2. BackgroundMaterial下，#[uniform]是什么意思
+       官方链接见于：https://docs.rs/bevy/0.8.0/bevy/render/render_resource/trait.AsBindGroup.html
+
+       继承自AsBindGroup的trait需要设定field attribute以绑定该field；
+
+       并没有完全理解这个意思
+    3. 通用lib型的crate是如何从main中调用的
+       以该例说明：
+       lib.rs中有run()方法，其编译后生成名为libbounce.so的库
+       lib编译后是libbounce，其中有run方法，bounce::run()
+    4. TimeScale的作用是什么
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
