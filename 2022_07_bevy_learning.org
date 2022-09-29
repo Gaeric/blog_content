@@ -64,6 +64,10 @@
        lib.rs中有run()方法，其编译后生成名为libbounce.so的库
        lib编译后是libbounce，其中有run方法，bounce::run()
     4. TimeScale的作用是什么
+
+
+    加入Score后有些问题：
+    1. FromWorld的作用是什么
 * Question
   1. assets的路径如何指定
   2. 如何加载.jpg格式的文件
