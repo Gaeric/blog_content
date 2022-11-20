@@ -112,9 +112,11 @@
 
    为什么会这样？？？
 
-   这里我暂时还没有完全弄明白，只知道它和~deafult-directory~有关，rs-module/load的~default-directory~不是当前文件所在的路径，而是你启动Emacs时的路径；
+   这里我暂时还没有完全弄明白，我在windows上尝试使用绝对路径加载，但是没有生效，使用相对路径时需要考虑~default-directory~。
 
-   为了方便，我将其简单包装了一下，做一个临时的workaround：
+   而rs-module/load的~default-directory~不一定是当前文件所在的路径，而是~rs-module~被加载时的~default-directory~；
+
+   为了方便，我将其改为绝对路径加载，并简单包装了一下，做一个临时的workaround：
    #+begin_src emacs-lisp
      (defvar gaeric/rs-module-default-path default-directory)
      (defun load-rs-module (path)
@@ -125,7 +127,7 @@
 
    用一点代码测试
    #+begin_src emacs-lisp
-     (load-rs-module "./target/release/liblim.so")
+     (load-rs-module "~/.emacs.d/site-lisp/lim/target/release/liblim.so")
 
      (defun lim-count-words ()
        (interactive)
