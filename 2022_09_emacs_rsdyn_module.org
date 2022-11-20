@@ -1,0 +1,153 @@
+#+title:使用rust开发emacs动态模块
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* 简介
+  在参考emacs-rs-module使用Rust开发动态模块时，我找到了两篇教程：
+
+  [[https://emacstalk.github.io/post/017/][使用C/Rust开发动态模块]]
+
+  [[https://cireu.github.io/2020/04/05/rust-emacs-module/][使用Rust扩展Emacs功能]]
+
+  尽管教程步骤简明，但是开发过程中我还是遇到了一些问题。
+
+  我主要在Windows和Linux下使用Emacs，Windows下的Emacs基于mingw64，Linux则是ArchLinux，从实践中来看，Linux和windows下开发动态模块的步骤有所不同，本篇以我开发的中文字数统计功能为例，分别说明Linux和Windows两个平台在开发过程中的细节差异，做为对上面两篇文章的补充。
+* Note
+** 环境工作
+   [[https://ubolonton.github.io/emacs-module-rs/latest/overview.html][Guide]] 中阐明了rust开发的动态模块需要如下环境，开发前需要先确认好自己的Rust版本以及emacs是否支持动态模块。
+
+   文章说明了windows上只有msvc版本的rust工具链确认可以工具，于是我选择了msvc版本的stable版本的rust
+   #+begin_example
+     Stable Rust 1.45+.
+     Emacs 25 or above, built with module support.
+
+     On Windows, only Rust's msvc toolchain was confirmed to work, not the gnu toolchain.
+   #+end_example
+   开发一个Rust动态模块，只需要使用Rust完成一个dylib模块，然后交由Emacs动态加载即可。
+** 编写动态模块
+   首先通过~cargo new --lib lim~创建一个library。
+
+   动态模块要兼容C的FFI才能被Emacs加载，所以crate的类型设置为cdylib。
+
+   依赖项为emacs，使用~cargo add emacs~加入该依赖项。
+
+   因为我们是从头开发，需要考虑让Emacs能够热重载该模块，参考[[https://ubolonton.github.io/emacs-module-rs/latest/reloading.html][官方文档]]，使用~cargo add emacs-rs-module --dev~加入开发依赖。
+
+   最后Cargo.toml文件内容参考如下：
+   #+begin_example
+     [package]
+     name = "lim"
+     version = "0.1.0"
+     edition = "2021"
+
+     # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+     [lib]
+     crate-type = ["cdylib"]
+
+     [dependencies]
+     emacs = "0.18"
+
+     [dev-dependencies]
+     emacs-rs-module = "0.18.0"
+   #+end_example
+
+   让Emacs支持动态模块加载是Linux和Windows最大的不同，后面开单独的一节说明，现在先完成动态模块；
+
+   我们计划使Emacs传递一串字符串给Rust模块，然后Rust统计这段字符串中的中文字数以及中文标点符号数量，并在minibuffer中打印出来；
+
+   动态模块的内容此处不多做说明，代码如下：
+   #+begin_src rust
+     use emacs::{Env, Result, Value, defun};
+     use cjk::{is_cjk_codepoint, is_cjk_punctuation_codepoint};
+
+     // must declare plugin is GPL compatible
+     emacs::plugin_is_GPL_compatible!();
+
+     #[emacs::module]
+     fn init(_: &Env) -> Result<()> {
+         Ok(())
+     }
+
+     #[defun]
+     fn do-count(env: &Env, content: String) -> Result<Value<'_>> {
+         let mut chinese = 0;
+         let mut punc = 0;
+
+         for c in content.chars() {
+             if c.is_whitespace() {
+                 continue;
+             }
+
+             if is_cjk_codepoint(c) {
+                 if is_cjk_punctuation_codepoint(c) {
+                     punc += 1;
+                 } else {
+                     chinese += 1;
+                 }
+             }
+         }
+
+         env.message(&format!("there are {} chinese, {} punc.", chinese, punc))
+     }
+   #+end_src
+** Linux下的热重载
+   为了支持热重载，我们首先需要加载~emacs-rs-module~提供的rs-module；
+
+   下载emacs-rs-module并对rs-module完成编译，此处使用~cargo build -r -p rs-module~失败，于是我首先cd到了rs-module目录下，然后执行~cargo build -r~编译了rs-module的release版本；
+
+   编译完成后通过~module-load~或~load-file~加载该library，在linux下，其为libemacs-rs-module.so
+
+   #+begin_src elisp
+     (load-file "~/.emacs.d/site-lisp/emacs-module-rs/target/release/libemacs_rs_module.so")
+   #+end_src
+
+   然后，在crate目录建一个demo.el文件，试图通过~rs-module/load~加载模块，结果报错了：
+   #+begin_example
+   Debugger entered--Lisp error: (rust-error "./target/release/liblim.so: cannot open shared obj...")
+     rs-module/load("./target/release/liblim.so")
+     eval((rs-module/load "./target/release/liblim.so") nil)
+   #+end_example
+
+   为什么会这样？？？
+
+   这里我暂时还没有完全弄明白，只知道它和~deafult-directory~有关，rs-module/load的~default-directory~不是当前文件所在的路径，而是你启动Emacs时的路径；
+
+   为了方便，我将其简单包装了一下，做一个临时的workaround：
+   #+begin_src emacs-lisp
+     (defvar gaeric/rs-module-default-path default-directory)
+     (defun load-rs-module (path)
+       (rs-module/load (file-relative-name (expand-file-name path) gaeric/rs-module-default-path)))
+   #+end_src
+
+   将上述代码加入的Emacs的启动代码中，再使用load-rs-module加载模块，即可正常加载
+
+   用一点代码测试
+   #+begin_src emacs-lisp
+     (load-rs-module "./target/release/liblim.so")
+
+     (defun lim-count-words ()
+       (interactive)
+       (lim-do-count
+        (buffer-substring-no-properties
+         (point-min)
+         (point-max))))
+   #+end_src
+   测试结果这里就不贴了，可以正常工作。
+
+   注意因为cjk这个library统计中文字符数量并不绝对精确，但对我而言够用了
+** Windows下热重载
+   Windows下更麻烦一些，主要是因为Windows下，动态链接库.dll加载后句柄就被占用，无法直接删除，下面定义了一个简单的函数，先将目标文件生成临时备份，加载临时备份用于调试
+   #+begin_example elisp
+     (defun dos-reload-workaround (path)
+       "Hot Reload Dynamic Module On Windows"
+       (let* ((file-abs (expand-file-name path))
+              (file-date (format-time-string "%Y%m%d%H%M%S"))
+              (file-new (concat (file-name-base file-abs) "_" file-date "." (file-name-extension file-abs))))
+         (if (file-exists-p (concat gaeric/rs-module-file-dir file-new))
+             (message "Skipping unmodified file %s" file-abs)
+           (copy-file file-abs file-new)
+           (let ((default-directory gaeric/rs-module-default-path))
+             (rs-module/load (file-relative-name file-new))))))
+   #+end_example
