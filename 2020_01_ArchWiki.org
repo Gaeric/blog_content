@@ -6,24 +6,26 @@
 ** For Installation
    今天在新的机器上重新安装了archlinux，本次安装完全遵循https://wiki.archlinux.org/title/Installation_guide， 但是安装过程中对Boot区域的划分有些迷糊，安装完成后网络连接也出现了问题，本处记录这两个问题
    1. Boot相关磁盘划分以及分区
-      本次安装前将BIOS由Legacy模式切换至UEFI模式，UEFI要求磁盘为GPT格式，于是我依据wiki的说明划分了512M的空间，预留为~EFI FileSystem~，为~sda1~；其它空间格式化为ext4，预留给操作系统，为~sda2~
+      本次安装前将BIOS由Legacy模式切换至UEFI模式，UEFI要求磁盘为GPT格式，于是我依据wiki的说明划分了512M的空间，预留为~EFI FileSystem~，为~sda1~；
 
-      wiki上要求为GPT格式的磁盘建立一个/mnt/boot目录，并将划分出来的~sda1~区域挂载至此，而将预留给操作系统的空间，即sda2挂载至/mnt，然后生成fstab信息；
+      这里需要记录的是，在使用~fdisk~指定sda1为efi分区时，可以在划分分区时使用t命令字指定该分区的类型，1为~EFI FileSystem~
+
+      其它空间格式化为ext4，预留给操作系统，为~sda2~
+
+      查看wiki说明，在磁盘建立一个/mnt/boot目录，以便于后续将~sda1~区域挂载至此，作为引导分区，这里将来会存放grub.efi文件以及其配置内容；
+
+      给操作系统的空间sda2挂载至/mnt，然后再将sda1挂载到/mnt/boot/，然后生成fstab信息；
+
+      其操作如下：
+      #+begin_src shell
+        mount /dev/sda2 /mnt
+        mount --mkdir /dev/sda1 /mnt/boot
+        genfstab -U /mnt >> /mnt/etc/fstab
+      #+end_src
 
       然后在建立grub启动项时，又要将sda1挂载至~/efi~或 ~/boot/efi~ （注意与前面生成fstab时并不是在同一个根目录下）；
 
-      使用mount挂载sda1，无报错，生成的grub.cfg信息正常；但是检查fstab信息，仅有sda2的挂载信息，而sda1的信息不在；
-
-      这里我的处理方法是：退出至archiso（U盘镜像启动的安装程序），重新执行genfstab，将fstab信息写入新系统的/etc/fstab；后面新系统能正常启动，
-
-      这里应该本应提前将sda1的信息写入fstab之中，但是现在新的机器不方便验证，等下一次装系统时再进行尝试；记录如下：
-      #+begin_example
-        1. mkdir /mnt/efi
-        2. mount /dev/sda1 to /mnt/efi
-        3. genfstab /mnt >> etc/fstab
-        4. genfatab /mnt/efi >> etc/fstab
-        5. config grub2 use /efi as efibootmgr dir on new system
-      #+end_example
+      注意，建立grub配置信息时，此处挂载的/mnt/boot即是esp节定，在arch-chroot后，节点为/boot；
 
    2. 系统软件包安装时，安装如下package group：
       #+begin_src shell
@@ -32,15 +34,14 @@
       其中base-devel为一些基础的开发软件包，包括~sudo, gcc, split~等，如果要从AUR安装软件，要记得安装这个~package group~
 
    3. 安装完成后为新系统配置网络
-      本轮没有为新系统配置网络，这是一个失误，联网的方式如下：
 ** System
 *** 如何设置dhcp
     首先要安装dhcpcd软件，然后如下操作
 
-    1. ip link '查看网卡名称，如enp4s0或eth0
-    2. ip link set enp4s0 up '启动网卡
-    3. dhcpcd enp4s0 '自动配置有线网络
-    4. systemctl enable dhcpcd@enp4s0.service '配置开机启动有线网络
+    1. ip link : 查看网卡名称，如enp4s0或eth0
+    2. ip link set enp4s0 up : 启动网卡
+    3. dhcpcd enp4s0 : 自动配置有线网络
+    4. systemctl enable dhcpcd@enp4s0.service : 配置开机启动有线网络
     5. 完成！以后系统开机自动联网！
 *** 安装引导
     #+BEGIN_EXAMPLE
@@ -72,18 +73,6 @@
     }
     ### END /etc/grub.d/30_os-prober ###
     #+END_EXAMPLE
-*** 安装grub时报错
-    #+BEGIN_EXAMPLE
-    1 # grub-install /dev/sda
-          2 /usr/sbin/grub-setup: warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
-          3 /usr/sbin/grub-setup: warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
-          4 /usr/sbin/grub-setup: error: will not proceed with blocklists.
-    #+END_EXAMPLE
-    如上报错中有两条warn，一条error；warn可以忽略，对于此error，使用--force强制执行即可！
-   
-    #+BEGIN_SRC shell
-      grub-install /dev/sda --force
-    #+END_SRC
 *** 安装Grub引导报错
     grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
     #+BEGIN_EXAMPLE
@@ -191,9 +180,47 @@
     然后安装arch上已经配置好的rime-sbxlm rime-sbxlm-sbfm这两个package，这两个package提供了必要的文件，安装完成后执行sbxlm-init；
 
     fcitx5的配置文件放置在~/.local/share/fcitx5/目录下，其下的rime目录存放了rime的文件，修改默认的输入法，并进行deploy即可。
-*** TODO glog版本问题记录
-    今天在另一台PC上发现glog版本为0.6.0时，与现有的rime-sbxlm-git这个package有兼容性问题，本次通过回退glog的版本解决
 ** Package
+*** package-list
+    1. sway foot wofi waybar ripgrep bat exa fd polkit
+    2. thunar gvfs tumbler thunar-volman thunar-archive-plugin thunar-media-tags-plugin ntfs-3g meld
+    3. zsh lua python3 clash firefox fzf zsh-autosuggestions zsh-syntax-highlighting
+    4. emacs xorg-xwayland
+    5. zathura zathura-cb zathura-djvu zathura-pdf-mupdf zathura-ps libreoffice-fresh
+    6. wqy-microhei adobe-source-han-sans-cn-fonts
+    7. ristretto mako linuxqq mpv gnome-system-monitor
+
+
+    还有部分软件未安装：
+    音乐播放器 - mpv
+    视频播放器 - mpv
+    图片浏览器 - ristretto/imv
+    系统监视器 - gnome-system-monitor
+    邮件管理器
+    通知系统 - mako
+*** 配置polkit
+    polkit，简单来说是一个包装了的用户鉴权接口，用于确认用户是否拥有权限执行某个功能；比如挂载磁盘
+
+    因为使用了thunar，图形界面打开其它盘时可能需要鉴权，此时需要先安装一个polkit-agent，我安装了mate-polkit
+
+    这个polkit-agent不会自启动，需要手动调起，将如下指令加到sway的配置文件中，令其自启动即可
+    #+begin_example
+    exec --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agent-1
+    #+end_example
+*** ssh使用proxy
+    ssh的配置依赖于ncat工具，先安装nmap包
+    #+begin_example
+      pacman -S nmap
+    #+end_example
+
+    ssh配置文件如下：
+    #+begin_example
+      Host github.com
+      HostName github.com
+      User git
+      Port 22
+      ProxyCommand /usr/bin/ncat --proxy 127.0.0.1:7891 --proxy-type socks5 %h %p
+    #+end_example
 *** Arch安装MySQL数据库
     在 ~Arch/Linux~ 中，安装 ~Mariadb
     #+BEGIN_EXAMPLE
@@ -286,6 +313,14 @@
        sudo pacman -U /var/cache/pacman/pkg/python-...-x86_64.pkg.tar.zst
 
        如果这个pkg不想升级，则在/etc/pacman.conf的IgnorePkg中加上刚刚安装的包
+*** 使用file指令查看文件类型
+    今天使用unzip解压文件时，发现一个zip包无法解压，应该是压缩类型不对；
+
+    如果得知文件的压缩类型？查询发现file指令可以得出其文件类型
+
+    #+begin_src shell
+      file demo.zip
+    #+end_src
 * History
   本栏记录那些已经不再使用的记录，过去验证的经验仅供参考
 ** yong输入法

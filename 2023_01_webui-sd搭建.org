@@ -1,0 +1,19 @@
+#+title: webui-sd搭建
+#+startup: content
+#+author: Gaeric
+#+HTML_HEAD: <link href="./worg.css" rel="stylesheet" type="text/css">
+#+HTML_HEAD: <link href="/static/css/worg.css" rel="stylesheet" type="text/css">
+#+OPTIONS: ^:{}
+* Intro
+  记录一下在archlinux上搭建webui-sd的过程
+* Content
+  探索了一个星期之后，终于搭建完成了webui-sd的基础环境。回头来看，其实安装过程最关键的部分在于torch的安装
+
+  在安装过程中，我直接通过pacman安装了amdgpu, python-pytorch-opt, mesa, rocm-hip-runtime等一系列安装包
+
+  以及通过AUR安装了python-torchvision-rocm amdgpu-pro-install两个package
+
+  然后通过torch.is_available_cuba()进行校验GPU可用
+
+  然后再安装webui的requirements中的软件包，即完成了环境的搭建
+* Note
