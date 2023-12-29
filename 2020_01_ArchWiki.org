@@ -43,45 +43,45 @@
     3. dhcpcd enp4s0 : 自动配置有线网络
     4. systemctl enable dhcpcd@enp4s0.service : 配置开机启动有线网络
     5. 完成！以后系统开机自动联网！
-*** 安装引导
+*** 安装loader
     #+BEGIN_EXAMPLE
     # grub-install --target=i386-pc /dev/sdX
     #+END_EXAMPLE
     where /dev/sdX is the disk where grub is to be installed (for example, disk /dev/sda and not partition /dev/sda1). 
-*** Arch+Win双系统配置Grub引导
-    加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
-    然后运行如下命令，更新 ~/boot/grub/custom.cfg~
-    #+BEGIN_EXAMPLE
-    # grub-mkconfig -o /boot/grub/grub.cfg
-    #+END_EXAMPLE
+**** 安装Grub引导报错
+     grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
+     #+BEGIN_EXAMPLE
+     warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
+           warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
+           error: will not proceed with blocklists.
+     #+END_EXAMPLE
+     解决方案：根据字面意思，可以强制写入blocklist；
+     grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB --force
+**** Arch+Win双系统配置Grub引导
+     加其它启动项最好的方法是使用os-prober，挂载系统所在的启动分区，然后直接执行 grub-mkconfig 即可
+     然后运行如下命令，更新 ~/boot/grub/custom.cfg~
+     #+BEGIN_EXAMPLE
+     # grub-mkconfig -o /boot/grub/grub.cfg
+     #+END_EXAMPLE
 
-    参考ArchWiki: https://wiki.archlinux.org/index.php/GRUB
-    本地参考如下
-    #+BEGIN_EXAMPLE
-    ### BEGIN /etc/grub.d/30_os-prober ###
-    menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-78FC9A61FC9A1A08' {
-    insmod part_msdos
-          insmod ntfs
-          set root='hd0,msdos1'
-          if [ x$feature_platform_search_hint = xy ]; then
-          search --no-floppy --fs-uuid --set=root --hint-ieee1275='ieee1275//disk@0,msdos1' --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  78FC9A61FC9A1A08
-          else
-          search --no-floppy --fs-uuid --set=root 78FC9A61FC9A1A08
-          fi
-          parttool ${root} hidden-
-          chainloader +1
-    }
-    ### END /etc/grub.d/30_os-prober ###
-    #+END_EXAMPLE
-*** 安装Grub引导报错
-    grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
-    #+BEGIN_EXAMPLE
-    warn: This GPT partition label has no BIOS Boot Partition; embedding won't be possible!.
-          warn: Embedding is not possible.  GRUB can only be installed in this setup by using blocklists.  However, blocklists are UNRELIABLE and their use is discouraged..
-          error: will not proceed with blocklists.
-    #+END_EXAMPLE
-    解决方案：根据字面意思，可以强制写入blocklist；
-    grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB --force
+     参考ArchWiki: https://wiki.archlinux.org/index.php/GRUB
+     本地参考如下
+     #+BEGIN_EXAMPLE
+     ### BEGIN /etc/grub.d/30_os-prober ###
+     menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-78FC9A61FC9A1A08' {
+     insmod part_msdos
+           insmod ntfs
+           set root='hd0,msdos1'
+           if [ x$feature_platform_search_hint = xy ]; then
+           search --no-floppy --fs-uuid --set=root --hint-ieee1275='ieee1275//disk@0,msdos1' --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  78FC9A61FC9A1A08
+           else
+           search --no-floppy --fs-uuid --set=root 78FC9A61FC9A1A08
+           fi
+           parttool ${root} hidden-
+           chainloader +1
+     }
+     ### END /etc/grub.d/30_os-prober ###
+     #+END_EXAMPLE
 *** 系统时间不正确需要重新配置
     #+BEGIN_EXAMPLE
      # 将系统时间写入BIOS（--systohc)
@@ -154,7 +154,7 @@
 
     要使wofi生效，需要在sway的配置文件中将应用启动器相关选项设置为：
     #+BEGIN_EXAMPLE
-      set $menu wofi_path | wofi --show run | xargs swaymsg exec --
+      set $menu wofi --show run | xargs swaymsg exec --
     #+END_EXAMPLE
 *** sway双屏配置
     sway默认支持多屏，简单使用无须配置。这里记录的配置原因是，HDMI-A-1(简称A1)在左边，HDMI-A-2(A2)在右边，但是使用鼠标时，鼠标需要从A1的左侧才能滑入A2的右侧，非常反直觉；
@@ -170,7 +170,6 @@
 
     然后实验按照archwiki上的说明，使用了pam_environmen文件设置了环境变量后，fcitx5不能在firefox中使用，这个问题的原因目前不清楚
 *** fcitx5开机在sway下自启动
-
     #+begin_src sh
       exec --no-startup-id fcitx5 -d
     #+end_src
@@ -183,19 +182,17 @@
 ** Package
 *** package-list
     1. sway foot wofi waybar ripgrep bat exa fd polkit
-    2. thunar gvfs tumbler thunar-volman thunar-archive-plugin thunar-media-tags-plugin ntfs-3g meld
-    3. zsh lua python3 clash firefox fzf zsh-autosuggestions zsh-syntax-highlighting
-    4. emacs xorg-xwayland
-    5. zathura zathura-cb zathura-djvu zathura-pdf-mupdf zathura-ps libreoffice-fresh
-    6. wqy-microhei adobe-source-han-sans-cn-fonts
-    7. ristretto mako linuxqq mpv gnome-system-monitor
-
+    2. thunar gvfs tumbler thunar-volman thunar-archive-plugin thunar-media-tags-plugin ntfs-3g meld gnome-system-monitor xorg-xwayland
+    3. zsh lua python3 clash firefox fzf zsh-autosuggestions zsh-syntax-highlighting emacs 
+    4. zathura zathura-cb zathura-djvu zathura-pdf-mupdf zathura-ps libreoffice-fresh
+    5. ristretto mako linuxqq mpv flamshot ttf-lxgw-wenkai ttf-lxgw-wenkai-mono
 
     还有部分软件未安装：
     音乐播放器 - mpv
     视频播放器 - mpv
     图片浏览器 - ristretto/imv
     系统监视器 - gnome-system-monitor
+    ssh client - electerm
     邮件管理器
     通知系统 - mako
 *** 配置polkit
