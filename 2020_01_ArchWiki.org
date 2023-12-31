@@ -135,6 +135,11 @@
     #+END_SRC
 
     注意首先需要关闭chrome或chromium，在未关闭其进程的情况下启动，proxy设置不会生效；猜测是因为在chrome/chromium进程存在时，新启动的只是一个session
+*** Bluetooth
+    1. 安装bluez和bluez-utils，做为蓝牙协议栈和实用程序组
+    2. 启动bluetooth.service
+    3. 安装blueberry用于蓝牙管理
+    4. 安装pipewire-pulse和helvum，前者提供对蓝牙耳机的支持，helvum是前者的前端界面
 ** Swaywm
 *** sway处理乱码并配置终端模拟器
     此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
