@@ -326,6 +326,46 @@
     #+begin_src shell
       file demo.zip
     #+end_src
+** Tips
+*** amdgpu驱动兼容性问题
+    在plasma6上，运行bevy时，出现如下报错信息
+    #+begin_example
+      Selected GPU 0: AMD Radeon RX 6700 XT, type: DiscreteGpu
+      wl_drm@17: error 0: wl_drm.create_prime_buffer is not implemented
+    #+end_example
+
+    根据google查到的信息，这是因为amdgpu驱动amdvlk使用了wayland协议中的私有的wl_drm内容，而目前wayland协议已经开始转向到使用linux_dmabuff，amdvlk对该协议的支持将在2024.Q4.1发布
+
+    信息来源：
+    https://bbs.archlinux.org/viewtopic.php?id=294816 
+
+    https://github.com/GPUOpen-Drivers/pal/issues/96
+
+    进一步检查，发现amd的驱动有三个可以选择的package，而我同时安装了amdvlk和vulkan-randeon，amdgpu在选择驱动时，默认会选择到amdvlk
+
+    尝试卸载amdvlk，发现vulkan-randeon能使得bevy正常工作
+
+    如果后续仍然需要装回amdvlk，需要遵循链接中的设置：https://wiki.archlinux.org/title/AMDGPU
+*** kira无法播放声音
+    运行foxtrot出现告警，发现是bevy_kira_audio的报错：
+    #+begin_example
+      WARN bevy_kira_audio::audio_output: Failed to setup audio: DefaultStreamConfigError(DeviceNotAvailable)
+    #+end_example
+
+    直接下载bevy_kira_audio，执行example用例，发现同样存在该报错。issue上无法搜索到相关信息，怀疑是底层依赖的问题。
+
+    进一步，下载kira并执行，发现了更详细的报错信息：
+    #+begin_example
+      ALSA lib pcm_dmix.c:1000:(snd_pcm_dmix_open) unable to open slave
+      Error: DefaultStreamConfigError(DeviceNotAvailable)
+    #+end_example
+
+    根据alsa的报错，查到archlinux bbs上有提示，需要安装pipewire-alsa
+    #+begin_src bash-ts
+      pacman -S pipewire-alsa
+    #+end_src
+
+    安装完成后上述问题解决
 * History
   本栏记录那些已经不再使用的记录，过去验证的经验仅供参考
 ** yong输入法
