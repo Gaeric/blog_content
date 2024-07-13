@@ -140,6 +140,9 @@
     2. 启动bluetooth.service
     3. 安装blueberry用于蓝牙管理
     4. 安装pipewire-pulse和helvum，前者提供对蓝牙耳机的支持，helvum是前者的前端界面
+*** 临时设置http_proxy和https_proxy
+    export http_proxy=http://127.0.0.1:20171  
+    export https_proxy=http://127.0.0.1:20171  
 ** Swaywm
 *** sway处理乱码并配置终端模拟器
     此时切到普通用户，直接运行 ~sway~ 应该可以直接启动了
