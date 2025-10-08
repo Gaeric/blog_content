@@ -366,6 +366,10 @@
     #+end_src
 
     安装完成后上述问题解决
+*** vlc播放h256格式文件失败
+    安装软件包： vlc-plugin-ffmpeg
+*** 声音无法正常播放
+    可能是pulseaudio和pipewire的兼容性问题，重新安装这两组文件即可
 * History
   本栏记录那些已经不再使用的记录，过去验证的经验仅供参考
 ** yong输入法
